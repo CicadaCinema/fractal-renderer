@@ -494,6 +494,222 @@ void textline(int curposx, int curposy, char *stringdata, int fontindex,
   glPrint(stringdata);
 }
 
+void printsceneinfo(void) {
+  TEXTBOX(700, 64, 784, 114, 0x00A0A0A0, 0x00FFFFFF);
+
+  tmp = 8;
+  textline(701, 65 + 0 * tmp, (char *)textbrmess[selnumbranch], SMALLFONT,
+           0x00000080);
+  textline(701, 65 + 1 * tmp, (char *)textbgmess[showbackground], SMALLFONT,
+           0x00000080);
+  textline(701, 65 + 2 * tmp, (char *)textgrmess[groundsize], SMALLFONT,
+           0x00000080);
+  textline(701, 65 + 3 * tmp, (char *)textlight[lightness], SMALLFONT,
+           0x00000080);
+  textline(701, 65 + 4 * tmp, (char *)textpales[whitershade], SMALLFONT,
+           0x00000080);
+  textline(701, 65 + 5 * tmp, (char *)textfunky[colourmode], SMALLFONT,
+           0x00000080);
+}
+
+void printtreeinfo(void) {
+  TEXTBOX(670, 10, 784, 60, 0x00A0A0A0, 0x00FFFFFF);
+  lcol = 0x00000080;
+  tmp = 12;
+  sprintf(stringbuf, "Now growing tree #%02i.", ((treeinuse + 1) & 0x1F));
+  textline(672, 10 + tmp * 0, stringbuf, MEDIUMFONT, lcol);
+  sprintf(stringbuf, "Name:%s.", trees[treeinuse].name);
+  textline(672, 10 + tmp * 1, stringbuf, MEDIUMFONT, lcol);
+  sprintf(stringbuf, "%s.", textbrmess[trees[treeinuse].branches - 1]);
+  textline(672, 10 + tmp * 2, stringbuf, MEDIUMFONT, lcol);
+  sprintf(stringbuf, "Uh=%i Gs=%i Sbh=%i Ut=%i", trees[treeinuse].usehig,
+          trees[treeinuse].glblscl, trees[treeinuse].sctrnsl,
+          trees[treeinuse].usetwst);
+  textline(672, 10 + tmp * 3, stringbuf, MEDIUMFONT, lcol);
+}
+
+void manual(void) {
+  // CLS:
+  clearscreen(0x00FFF0E0);
+
+  // Head texts:
+  printsceneinfo();
+  printtreeinfo();
+  lcol = 0x00000080;
+  textline(10, 10,
+           (char *)"SunCode's 3D Dragon Tree IFS, the Demo, (first version "
+                   "eight edition of May 2005)",
+           BIGFONT, lcol);
+
+  // Keys:
+  TEXTBOX(30, 38, 556, 258, 0x00A0A0A0, 0x00D8F8E8);
+  lcol = 0x00006000;
+  tmp = 48;
+  int yi = 56;
+  int xi = 15;
+  textline(tmp - 16, 38, (char *)"Keys to use in this demo:", BIGFONT, lcol);
+  textline(
+      tmp, yi + xi * 0,
+      (char *)"[Esc] = Exit program! | [Alt] = exit from render | [SPACE] = "
+              "Toggle this screen and render mode screen.",
+      MEDIUMFONT, lcol);
+  textline(
+      tmp, yi + xi * 1,
+      (char *)"[R] = Randomize tree. | [A] = Randomize angle of view | [Arrow "
+              "keys] = Rotate the scene.",
+      MEDIUMFONT, lcol);
+  textline(tmp, yi + xi * 2,
+           (char *)"[N] = Select number of branches, (random, 2, 3, 4, 5, 6, 7 "
+                   "or 8) | "
+                   "[1] - [8] = Randomize single branch.",
+           MEDIUMFONT, lcol);
+  textline(tmp, yi + xi * 3,
+           (char *)"[C] = Clear buffers, (useful after, for example a palette "
+                   "selection to clear out old pixels)",
+           MEDIUMFONT, lcol);
+  textline(
+      tmp, yi + xi * 4,
+      (char *)"[V] = Clear view, (useful after a selection, also removes my "
+              "SunCode 'tag' from the screen =)",
+      MEDIUMFONT, lcol);
+  textline(
+      tmp, yi + xi * 5,
+      (char
+           *)"[X] = Bigger tree. | [S] = Smaller tree. | [D] = Thicker tree. | "
+             "[F] = Thinner tree.",
+      MEDIUMFONT, lcol);
+  textline(tmp, yi + xi * 6,
+           (char *)"[Page Down] / [Page Up] = Zoom in / out. | [Home] = Reset "
+                   "zoom and "
+                   "angle of view.",
+           MEDIUMFONT, lcol);
+  textline(
+      tmp, yi + xi * 7,
+      (char *)"[I] = View information. | [T] = Test render, a white sheet, are "
+              "pixels still written?, this will show that.",
+      MEDIUMFONT, lcol);
+  textline(
+      tmp, yi + xi * 8,
+      (char
+           *)"[B] = Background, (on skyblue, on blue, on black, off black, off "
+             "white). | [G] = Size of ground, (B, M, S).",
+      MEDIUMFONT, lcol);
+  textline(
+      tmp, yi + xi * 9,
+      (char *)"[P] = Randomize colours for foliage. | [E] = Extra foliage off, "
+              "on, solo. | [U] = Use logs, cubes or sphears.",
+      MEDIUMFONT, lcol);
+  textline(
+      tmp, yi + xi * 10,
+      (char *)"[W] = Turn the whiter shade of pale to normal, flourescent or "
+              "filament. | [L] = Toggle lights = light or dark",
+      MEDIUMFONT, lcol);
+  textline(tmp, yi + xi * 11, (char *)"[O] = Turn FUNKYCOLOURS on/off.",
+           MEDIUMFONT, lcol);
+  textline(
+      tmp, yi + xi * 12,
+      (char *)"[M] = More trees. | [F1] - [F4] = Toggle flags: 'Use heights', "
+              "'Global scale', 'Scale by height' and 'Use twist'.",
+      MEDIUMFONT, lcol);
+
+  // Colours:
+  viewcols();
+
+  // Notes:
+  TEXTBOX(322, 270, 784, 568, 0x00A0A0A0, 0x00D8E8F8);
+  tmp = 340;
+  lcol = 0x00600000;
+  textline(tmp - 16, 270, (char *)"Notes:", BIGFONT, lcol);
+
+  textline(
+      tmp, 290,
+      (char *)"Most trees looks awful but some don't and those are the ones we "
+              "are looking for ;)",
+      MEDIUMFONT, lcol);
+
+  textline(tmp, 310,
+           (char *)"A good idea is to render the image once to fill out the "
+                   "shadow-map "
+                   "and then press [C] to clear",
+           MEDIUMFONT, lcol);
+  textline(
+      tmp, 322,
+      (char *)"out the pixel and z-buffers and [V] to clear the view. And then "
+              "render the image once again",
+      MEDIUMFONT, lcol);
+  textline(
+      tmp, 334,
+      (char *)"using the previously compleated shadow-map. This will make the "
+              "shadows better.",
+      MEDIUMFONT, lcol);
+
+  textline(
+      tmp, 354,
+      (char *)"To save the current image you can press [Print Screen] and then "
+              "[Esc] (to exit), and then the",
+      MEDIUMFONT, lcol);
+  textline(tmp, 366,
+           (char *)"image is, (hopefully) on your clipboard, ready to get "
+                   "pasted into "
+                   "any graphics tool.",
+           MEDIUMFONT, lcol);
+
+  textline(
+      tmp, 386,
+      (char *)"The colours are choosen by random. Press [O] and you will enter "
+              "'FUNKYCOLOURS' mode. If",
+      MEDIUMFONT, lcol);
+  textline(tmp, 398,
+           (char *)"you do not like the current set of colours, then simply "
+                   "press [P] "
+                   "until random finds a set you like.",
+           MEDIUMFONT, lcol);
+
+  textline(
+      tmp, 550,
+      (char *)"This program is part of the public domain, (PD), distribute and "
+              "make copys freely.",
+      MEDIUMFONT, lcol);
+
+  spacemess();
+}
+
+void spacemess(void) {
+  if (itersdone == 0) {
+    sprintf(
+        stringbuf,
+        "Press space to start render! %li iterations done, %li image pixels, "
+        "%li shadow pixels.",
+        itersdone, pixelswritten, shadowswritten);
+    textline(64, 574, stringbuf, BIGFONT, lcol);
+  } else {
+    sprintf(stringbuf,
+            "Press space to continue render! %li iterations done, %li image "
+            "pixels, %li shadow pixels.",
+            itersdone, pixelswritten, shadowswritten);
+    textline(64, 574, stringbuf, BIGFONT, lcol);
+  }
+}
+
+void viewcols(void) {
+  TEXTBOX(30, 270, 312, 568, 0x00A0A0A0, bgcol[showbackground]);
+  lcol = txcol[showbackground];
+  textline(32, 270, (char *)"Foliage coloursation:", BIGFONT, lcol);
+  textline(132, 556, (char *)"Press [P] to randomize", SMALLFONT, lcol);
+  writecols();
+}
+
+void writecols(void) {
+  tmp = 32;
+  for (int i = 0; i < trees[treeinuse].branches; i++) {
+    sprintf(stringbuf, "Branch # %i;", i + 1);
+    textline(48, 290 + i * tmp, stringbuf, BIGFONT, txcol[showbackground]);
+
+    tcolor = ((tcr[4 + i] << 16) + (tcg[4 + i] << 8) + tcb[4 + i]) & 0x00FFFFFF;
+    FILLBOX(160, 290 + i * tmp, 306, 318 + i * tmp, tcolor);
+  }
+}
+
 void clearscreen(long RGBdata) {
   glBegin(GL_POINTS);
   setColour(RGBdata);
@@ -883,34 +1099,7 @@ void DrawGLScene() {
           GL_COLOR_BUFFER_BIT); // Clear The Screen And The Depth Buffer
   glLoadIdentity();             // Reset The View
 
-  clearscreen(0x00E0BBBB);
-
-  glColor3f(1.0f, 0.0f, 0.0f);
-  glRasterPos2i(50, 50);
-  glPrint((char *)"The quick brown fox jumps over the lazy dog.");
-  textline(20, 60, (char *)"The cow jumped over the moon.", 0, 0x00FF00FF);
-
-  // draw a 100x100 green square
-  glBegin(GL_POINTS);
-  glColor3f(0.0f, 1.0f, 0.0f);
-  for (int x = 0; x < 100; x++) {
-    for (int y = 0; y < 100; y++) {
-      glVertex2i(x, y);
-    }
-  }
-  glEnd();
-
-  // draw a 100x100 red square, on top of the green one
-  glBegin(GL_POINTS);
-  glColor3f(1.0f, 0.0f, 0.0f);
-  for (int x = 50; x < 150; x++) {
-    for (int y = 50; y < 150; y++) {
-      glVertex2i(x, y);
-    }
-  }
-  glEnd();
-
-  TEXTBOX(350, 200, 400, 300, 0x00FFFFFF, 0x000000FF);
+  manual();
 
   // swap the buffers to display, since double buffering is used.
   glutSwapBuffers();
