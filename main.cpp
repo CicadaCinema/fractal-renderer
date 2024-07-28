@@ -1105,18 +1105,39 @@ void DrawGLScene() {
   glutSwapBuffers();
 }
 
-/* The function called whenever a key is pressed. */
-void keyPressed(unsigned char key, int x, int y) {
+/* The function called whenever a key is pressed down. */
+void keyDownCallback(unsigned char key, int x, int y) {
   /* avoid thrashing this call */
   usleep(100);
 
-  /* If escape is pressed, kill everything. */
-  if (key == ESCAPE) {
+  switch (key) {
+  case ESCAPE:
+    /* If escape is pressed, kill everything. */
     /* shut down our window */
     glutDestroyWindow(window);
 
     /* exit the program...normal termination. */
     exit(0);
+    break;
+  case 'a':
+    printf("a pressed down\n");
+    break;
+  default:
+    break;
+  }
+}
+
+/* The function called whenever a key is released. */
+void keyUpCallback(unsigned char key, int x, int y) {
+  /* avoid thrashing this call */
+  usleep(100);
+
+  switch (key) {
+  case 'a':
+    printf("a released\n");
+    break;
+  default:
+    break;
   }
 }
 
@@ -1151,8 +1172,9 @@ int main(int argc, char **argv) {
   /* Register the function called when our window is resized. */
   glutReshapeFunc(&ReSizeGLScene);
 
-  /* Register the function called when the keyboard is pressed. */
-  glutKeyboardFunc(&keyPressed);
+  /* Register the functions called when the keyboard is pressed. */
+  glutKeyboardUpFunc(&keyUpCallback);
+  glutKeyboardFunc(&keyDownCallback);
 
   /* Initialize our window. */
   InitGL(WIDTH, HEIGHT);
