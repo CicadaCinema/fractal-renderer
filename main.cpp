@@ -494,6 +494,299 @@ void textline(int curposx, int curposy, char *stringdata, int fontindex,
   glPrint(stringdata);
 }
 
+void clearscreen(long RGBdata) {
+  glBegin(GL_POINTS);
+  setColour(RGBdata);
+  for (int x = 0; x < WIDTH; x++) {
+    for (int y = 0; y < HEIGHT; y++) {
+      glVertex2i(x, y);
+    }
+  }
+  glEnd();
+}
+
+void showpic(void) {
+  int x, y, xx, yy;
+
+  glBegin(GL_POINTS);
+  for (y = 0; y < HEIGHT; y++) {
+    yy = y << 1;
+    for (x = 0; x < WIDTH; x++) {
+      xx = x << 1;
+
+      tcolor = pict[yy][xx];
+      tRed = (tcolor >> 16) & 0xFF;
+      tGreen = (tcolor >> 8) & 0xFF;
+      tBlue = tcolor & 0xFF;
+
+      tcolor = pict[yy + 1][xx];
+      tRed += (tcolor >> 16) & 0xFF;
+      tGreen += (tcolor >> 8) & 0xFF;
+      tBlue += tcolor & 0xFF;
+
+      tcolor = pict[yy + 1][xx + 1];
+      tRed += (tcolor >> 16) & 0xFF;
+      tGreen += (tcolor >> 8) & 0xFF;
+      tBlue += tcolor & 0xFF;
+
+      tcolor = pict[yy][xx + 1];
+      tRed += (tcolor >> 16) & 0xFF;
+      tGreen += (tcolor >> 8) & 0xFF;
+      tBlue += tcolor & 0xFF;
+
+      tRed = (tRed >> 2) & 0xFF;
+      tGreen = (tGreen >> 2) & 0xFF;
+      tBlue = (tBlue >> 2) & 0xFF;
+
+      tcolor = ((tRed << 16) + (tGreen << 8) + tBlue) & 0x00FFFFFF;
+      setColour(tcolor);
+      glVertex2i(x, y);
+    }
+  }
+  glEnd();
+}
+
+void CreatePalette(void) {
+  bool invert, vertin, lightobject, heatvawe, sinvawe, bakwrds;
+  int fade, i;
+  long tc;
+  float fdout, fdin, fdout2, fdin2, fdouts, fdins, ufade0, ufade1, ufade2,
+      ufade3, ampl;
+  float rf, gf, bf, freq, rl, gl, bl;
+
+  freq = 1.0f + RND * RND * RND * 256.0f;
+  rf = freq * (1.0f + RND * pi);
+  gf = freq * (1.0f + RND * pi);
+  bf = freq * (1.0f + RND * pi);
+
+  // Randomize palette-modes:
+  invert = (RND > 0.5f);
+  lightobject = (RND > 0.75f);
+  vertin = (RND > 0.75f);
+  heatvawe = (RND > 0.95f);
+  sinvawe = (RND > 0.75f);
+  bakwrds = (RND > 0.5f);
+
+  fade = int(RND * 2);
+  for (i = 0; i != PALSIZE; i++) {
+    fdout = float(PALSIZE - i) / PALSIZE;
+    if (bakwrds)
+      fdout = float(i) / PALSIZE;
+
+    fdout2 = fdout * fdout;
+    fdouts = sqrt(fdout);
+
+    fdin = 1.0f - fdout;
+    fdin2 = 1.0f - fdouts;
+    fdins = 1.0f - fdout2;
+
+    ufade0 = fdout;
+    ufade1 = fdins;
+    ufade2 = fdout2;
+    //    ufade3 = fdouts;
+
+    //		if ( vertin )
+    //     	ufade2 = 1.0f - ufade2;
+
+    freq = rf * ufade0 * sqrt(ufade0);
+    rl = (1.0f + cos(freq)) * 0.5f;
+    freq = gf * ufade0 * sqrt(ufade0);
+    gl = (1.0f + cos(freq)) * 0.5f;
+    freq = bf * ufade0 * sqrt(ufade0);
+    bl = (1.0f + cos(freq)) * 0.5f;
+
+    if (lightobject) {
+      if (vertin) {
+        length = sqrt(rl * rl + gl * gl + bl * bl) * 2.0f;
+        rl = ((1.0f + rl) / length) * fdin;
+        gl = ((1.0f + gl) / length) * fdin;
+        bl = ((1.0f + bl) / length) * fdin;
+      } else {
+        rl = gl = bl = fdin2;
+      }
+    }
+
+    if (heatvawe) {
+      freq = fdin2 * pii;
+      rl = (1.0f - ((1.0f + sin(freq + rad * 240.0f)) * 0.5f * fdout)) * fdins;
+      gl = (1.0f - ((1.0f + sin(freq + rad * 120.0f)) * 0.5f * fdout)) * fdins;
+      bl = (1.0f - ((1.0f + sin(freq)) * 0.5f * fdout)) * fdins;
+    } // heatvawe.
+
+    if (sinvawe) {
+      rl *= (1.0f + sin(fdout * pii * 4.1f)) / 2.0f;
+      gl *= (1.0f + sin(fdout * pii * 4.2f)) / 2.0f;
+      bl *= (1.0f + sin(fdout * pii * 4.3f)) / 2.0f;
+    } // sinvawe.
+
+    if (invert && vertin) {
+      rl = (2.0f - rl) / 2.0f;
+      gl = (2.0f - gl) / 2.0f;
+      bl = (2.0f - bl) / 2.0f;
+    } else if (invert) {
+      rl = 1.0f - rl;
+      gl = 1.0f - gl;
+      bl = 1.0f - bl;
+    } // Inverts.
+
+    // Calibrate luminousity:
+    amp = sqrtl(rl * rl + gl * gl + bl * bl);
+    if (amp > 0.0f) {
+      rl /= amp;
+      gl /= amp;
+      bl /= amp;
+    } else {
+      rl = 0.5f;
+      gl = 0.5f;
+      bl = 0.5f;
+    }
+    // Calibrate luminousity.
+
+    tc = int(rl * float(0x01000000)) & 0x00ff0000;
+    tc += int(gl * float(0x00010000)) & 0x0000ff00;
+    tc += int(bl * float(0x00000100)) & 0x000000ff;
+    lpCols[i] = tc;
+  }
+}
+
+void ShowPalette(int mode) {
+  int pr;
+  int pp;
+  int pz;
+
+  // Draw border:
+  FILLBOX(WIDTH - 306, 294, WIDTH - 46, 554, 0x00A0A0A0);
+
+  tmp = WIDTH - 304;
+
+  glBegin(GL_POINTS);
+  switch (mode) {
+  case SERP:
+    for (pr = (256 - 1); pr >= 0; pr--) {
+      for (pp = 0; pp < 256; pp++) {
+        setColour(
+            lpCols[(int(pp * (PALSIZE / 256)) | int(pr * (PALSIZE / 256)))]);
+        glVertex2i(tmp + pp, HEIGHT - 304 + pr);
+      }
+    }
+    break;
+
+  case ABSZ:
+    for (pr = (256 - 1); pr >= 0; pr--) {
+      for (pp = 0; pp < 256; pp++) {
+        pz = 1 + int((sqrt((pr - 128) * (pr - 128) + (pp - 128) * (pp - 128)) /
+                      725) *
+                     PALSIZE);
+        pz = sqrt(pz) * sqrt(PALSIZE);
+        setColour(lpCols[PALSIZE - (pz & (PALSIZE - 1))]);
+        glVertex2i(tmp + pp, HEIGHT - 304 + pr);
+      }
+    }
+    break;
+
+  case HOTB:
+  default:
+    break;
+  }
+  glEnd();
+}
+
+void drawLine(void) {
+  long double llen, ldx, ldy;
+  long int lpx, lpy, lnum;
+
+  // clip to ( -4 / 3 ) < x < ( 4 / 3 ) / -1 < y < 1
+  if (fabsl(lxs) > RATIO) {
+    temp = RATIO / fabsl(lxs);
+    lxs = (fabsl(lxs) * temp) * SGN(lxs);
+    lys = (fabsl(lys) * temp) * SGN(lys);
+  }
+  if (fabsl(lxe) > RATIO) {
+    temp = RATIO / fabsl(lxe);
+    lxe = (fabsl(lxe) * temp) * SGN(lxe);
+    lye = (fabsl(lye) * temp) * SGN(lye);
+  }
+  if (fabsl(lys) > 1.0f) {
+    temp = 1.0f / fabsl(lys);
+    lxs = (fabsl(lxs) * temp) * SGN(lxs);
+    lys = (fabsl(lys) * temp) * SGN(lys);
+  }
+  if (fabsl(lye) > 1.0f) {
+    temp = 1.0f / fabsl(lye);
+    lxe = (fabsl(lxe) * temp) * SGN(lxe);
+    lye = (fabsl(lye) * temp) * SGN(lye);
+  }
+  // clip ends.
+
+  ldx = lxe - lxs;
+  ldy = lye - lys;
+  llen = sqrtl(ldx * ldx + ldy * ldy);
+  ldx = ldx / llen;
+  ldy = -ldy / llen;
+  lxs = lxs * MIDX;
+  lys = -lys * MIDY;
+  lnum = int(llen * MIDY) + 1;
+
+  glBegin(GL_POINTS);
+  setColour(lcol);
+  do {
+    lpx = int(MIDX + lxs);
+    lpy = int(MIDY + lys);
+    glVertex2i(lpx, lpy);
+    lxs += ldx;
+    lys += ldy;
+  } while (--lnum);
+  glEnd();
+}
+
+void drawMulticolLine(void) {
+  long double llen, ldx, ldy;
+  long int lpx, lpy, lnum;
+
+  // clip to ( -4 / 3 ) < x < ( 4 / 3 ) / -1 < y < 1
+  if (fabsl(lxs) > RATIO) {
+    temp = RATIO / fabsl(lxs);
+    lxs = (fabsl(lxs) * temp) * SGN(lxs);
+    lys = (fabsl(lys) * temp) * SGN(lys);
+  }
+  if (fabsl(lxe) > RATIO) {
+    temp = RATIO / fabsl(lxe);
+    lxe = (fabsl(lxe) * temp) * SGN(lxe);
+    lye = (fabsl(lye) * temp) * SGN(lye);
+  }
+  if (fabsl(lys) > 1.0f) {
+    temp = 1.0f / fabsl(lys);
+    lxs = (fabsl(lxs) * temp) * SGN(lxs);
+    lys = (fabsl(lys) * temp) * SGN(lys);
+  }
+  if (fabsl(lye) > 1.0f) {
+    temp = 1.0f / fabsl(lye);
+    lxe = (fabsl(lxe) * temp) * SGN(lxe);
+    lye = (fabsl(lye) * temp) * SGN(lye);
+  }
+  // clip ends.
+
+  ldx = lxe - lxs;
+  ldy = lye - lys;
+  llen = sqrtl(ldx * ldx + ldy * ldy);
+  ldx = ldx / llen;
+  ldy = -ldy / llen;
+  lxs = lxs * MIDY;
+  lys = -lys * MIDY;
+  lnum = int(llen * MIDY) + 1;
+
+  glBegin(GL_POINTS);
+  do {
+    lpx = int(MIDX + lxs);
+    lpy = int(MIDY + lys);
+    setColour(lpCols[lnum & (PALSIZE - 1)]);
+    glVertex2i(lpx, lpy);
+    lxs += ldx;
+    lys += ldy;
+  } while (--lnum);
+  glEnd();
+}
+
 void drawBoxi(void) {
   int boxw, boxh;
 
@@ -589,6 +882,8 @@ void DrawGLScene() {
   glClear(GL_DEPTH_BUFFER_BIT |
           GL_COLOR_BUFFER_BIT); // Clear The Screen And The Depth Buffer
   glLoadIdentity();             // Reset The View
+
+  clearscreen(0x00E0BBBB);
 
   glColor3f(1.0f, 0.0f, 0.0f);
   glRasterPos2i(50, 50);
