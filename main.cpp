@@ -463,6 +463,32 @@ int SGN(double x) {
   else
     return (1);
 } // SGN.
+void textline(int curposx, int curposy, char *stringdata, int fontindex,
+              long textcolor) {
+  // FIXME: support setting font size
+  /*
+  // Select font:
+  switch (fontindex) {
+  case 0:
+    SelectObject(hdc, smallfont);
+    break;
+  case 1:
+    SelectObject(hdc, mediumfont);
+    break;
+  case 2:
+    SelectObject(hdc, bigfont);
+    break;
+  } // Select font.
+  */
+
+  unsigned char r = (textcolor & 0x00FF0000) >> 16;
+  unsigned char g = (textcolor & 0x0000FF00) >> 8;
+  unsigned char b = textcolor & 0x000000FF;
+
+  glColor3ub(r, g, b);
+  glRasterPos2i(curposx, curposy);
+  glPrint(stringdata);
+}
 
 /* A general OpenGL initialization function.  Sets all of the initial
  * parameters. */
@@ -512,6 +538,7 @@ void DrawGLScene() {
   glColor3f(1.0f, 0.0f, 0.0f);
   glRasterPos2i(50, 50);
   glPrint((char *)"The quick brown fox jumps over the lazy dog.");
+  textline(20, 60, (char *)"The cow jumped over the moon.", 0, 0x00FF00FF);
 
   // draw a 100x100 green square
   glBegin(GL_POINTS);
