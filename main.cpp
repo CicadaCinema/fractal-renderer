@@ -1070,7 +1070,7 @@ void InitGL(
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity(); // Reset The Projection Matrix
 
-  gluOrtho2D(0, Width, 0, Height);
+  gluOrtho2D(0, Width, Height, 0);
 
   glMatrixMode(GL_MODELVIEW);
 
@@ -1088,7 +1088,7 @@ void ReSizeGLScene(int Width, int Height) {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  gluOrtho2D(0, Width, 0, Height);
+  gluOrtho2D(0, Width, Height, 0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 }
