@@ -33,6 +33,385 @@
 /* The number of our GLUT window */
 int window;
 
+// A number of "always useful" constants:
+const double pi = 3.141592654f; // Precission enough?
+
+// These 'constants' are initiated in the function "doInit":
+double rad; // A radian.
+double pii; // 2 x pi.
+double phi; // The golden ratio.
+
+// A number of "always useful" variables:
+bool tflag;     // A temporary flag.
+int tmp;        // A temporary integer number.
+double temp;    // A temporary floating point number.
+double angle;   // Used to store an angle, (radians or degrees)
+double cosx;    // Cos of an angle.
+double siny;    // Sin of an angle.
+double amp;     // The amplitude of ...
+double length;  // The length of ...
+double xlen;    // Length of x.
+double ylen;    // Length of y.
+double zlen;    // Length of z.
+double llength; // If two lengths of ... is needed.
+
+// Temporary index variables:
+int index;
+int i;
+int j;
+int xi;
+int yi;
+
+// Temporary n-counters:
+int n;
+int p;
+int r;
+
+//**** Four dimensions: ****
+
+// Variable + temp dito:
+double x, tmpx;
+double y, tmpy;
+double z, tmpz;
+double t, tmpt; // Also used for 'temp'.
+
+// Temp storage if a square is used more than once:
+double xx;
+double yy;
+double zz;
+double tt;
+
+// Constant:
+double a;
+double b;
+double c;
+double d;
+
+/* --------------------------------------------------------------------- *
+                Fractal renderer variablel declarations:
+
+    Notes:
+
+        Below a mess!, (well it's getting better), but this section
+      will be cleaner & get better comments in the near future.
+      To download the latest version of this source-code, go to:
+
+        "http://members.chello.se/solgrop/3dtree.htm"
+
+                Some of this stuff is not used here, this code is
+                originaly my 3D reversed Julia set creatorthat was
+      based upon my 3D linear IFS renderer.
+        (I'm back where I started =)
+
+ * --------------------------------------------------------------------- */
+// Structures for trees:
+#define NUMTREES 32
+DTBRA branches[NUMTREES][8];
+DTIFS trees[NUMTREES];
+
+// Main task flags:
+bool runflag = false;
+bool renderactive = false;
+int programMode = 1;
+
+// Image buffers & stuff:
+long *lpBuf;                // Pointer to screen buffer.
+long lk;                    // Size of screen line, (y coordinate incrementor).
+long lpCols[PALSIZE];       // Buffer for colour palette.
+long pict[BHEIGHT][BWIDTH]; // Buffer for picture.
+int bpict[BHEIGHT][BWIDTH]; // Z-buffer for picture, max value = ZDEPTH.
+int light[LHEIGHT][LWIDTH]; // Z-buffer for shadows, max value = ZDEPTH.
+
+// Used for writing lines:
+int lixs, liys, lixe, liye;
+long lcol;
+double lxs, lys, lxe, lye;
+double RATIO, RERAT;
+
+// Variable to store the background colour -
+//(initiate to default):
+long bgcolor = 0x00103050;
+
+// Flag if a new set is to be rendered:
+bool newset = false;
+
+// Flag if shadowmap was locked:
+bool lockshadow = false;
+
+// Variables to store the current background modes:
+int showbackground;
+int groundsize;
+
+// A rect that containas the whole screen:
+RECT rfsc = {0, 0, WIDTH, HEIGHT};
+// A rect used for anything needed:
+RECT tbox = {0, 0, 0, 0};
+
+// Fonts, three diffrent used here:
+HFONT smallfont, mediumfont, bigfont;
+
+// Number of branches texts:
+char *textbrmess[8] = {"Random branches", "Two branches",  "Three branches",
+                       "Four branches",   "Five branches", "Six branches",
+                       "Seven branches",  "Eight branches"};
+
+// Background mode, text, colours and text colours:
+char *textbgmess[5] = {"On skyblue", "On blue", "On black", "Off black",
+                       "Off white"};
+// note: RGB
+long bgcol[5] = {0x006080C0, 0x00103050, 0x00000000, 0x00000000, 0x00FFFFFF};
+// note: BGR
+long txcol[5] = {0x0040FFFF, 0x0080FFFF, 0x00FFFFFF, 0x0000FFFF, 0x00800000};
+
+// Ground size texts:
+char *textgrmess[3] = {
+    "Big ground",
+    "Medium ground",
+    "Small ground",
+};
+
+// Sizes for ground square:
+double grounds[3] = {
+    0.67f,
+    0.45f,
+    0.3f,
+};
+
+// Light model texts:
+char *textlight[2] = {"Dark", "Light"};
+
+char *textpales[3] = {"Normal (sunspot)", "Flourescent (moonspot)",
+                      "Filament (noonspot)"};
+
+char *textfunky[2] = {"FUNKYCOLOURS off", "FUNKYCOLOURS on"};
+// Temporary string buffer:
+char stringbuf[256];
+
+/* ---------------------------------------------------------------------
+                VARIABLES FOR THE ITERATION-LOOP:
+   --------------------------------------------------------------------- */
+// Image scale ratios, (pic & shadows):
+double ims = 2500, lims = 5000, size;
+
+// Zoomfactor and zoom in/out factors:
+double imszoom = 1.0f;
+
+// Camera translation:
+double CPOSX = 0.0f;
+double CPOSY = 0.353f;
+double CPOSZ = 0.0f;
+
+// Physical screen coordinates, (x, y & z-buffer) + temp dito:
+int nX, nXt;
+int nY, nYt;
+int nZ, nZt;
+
+//// Light! ////
+
+// Flag if surface normal is in use:
+bool donormal;
+
+// Flag if pixel is written to the shadows map:
+bool doshadow;
+
+// Light models:
+int whitershade = 0;
+int lightness = 1;
+
+// Various temp variables used to calculate lights:
+int ncols, bright, blight, tbright, overexpose, toverexpose;
+double minbright, maxbright, luma, tluma;
+
+// Light rotation angles & cos + sin for these:
+double lrxx, lrxy, lrxv;
+double lryx, lryy, lryv;
+
+// Attractor-glow!
+bool useglow;
+double glow = 1.0f, largel = 0.0001f;
+double bglow = 1.0f, blargel = 0.0001f;
+double dglow = 1.0f, dlargel = 0.0001f;
+
+// Palette index:
+int pali = 0;
+// "Second root" palette index:
+int pali2 = 0;
+
+// Temp storage for colour, (used for "second root").
+int tcolr, tcolg, tcolb;
+
+// Rotator, (cos, sin, angle):
+double rxx, rxy, rxv;
+double ryx, ryy, ryv;
+
+//// IFS! IFS!! IFS!!! ////
+long itersdone = 0;      // Number of iterations done so far.
+long pixelswritten = 0;  // Number of pixels written to the image Z-buffer.
+long spixelswritten;     // Storage for number of pixels written.
+long shadowswritten = 0; // Number of pixels written to the shadow map Z-buffer.
+long sshadowswritten;    // Storage for number of shadows written.
+int pti;                 // Index counter for IFS loop.
+double btx, bty, btz;    // Bottom plane 3D point.
+double dtx, dty, dtz;    // 3D point - the fractal.
+double ltx, lty, ltz;    // 3D point Light position.
+double xt, yt, zt;       // Pixel position in scene.
+double ntx, nty, ntz;    // Normal of pixel (if needed).
+double dntx, dnty, dntz; // Normal of pixel (if needed)!
+double nxt, nyt, nzt;    // Pixel normal position in scene.
+
+// ISF random index, ("background" and "dragon"):
+int bi, di;
+
+// Translators for IFS:
+//( + 4 is the background 4 point space fill square)
+double tx[ANTAL + 4];
+double ty[ANTAL + 4];
+double tz[ANTAL + 4];
+
+// Height of stem where the branch resides:
+//( + 4 is the background 4 point space fill square)
+double brheight[ANTAL + 4];
+
+// Storage and temp for scale factors for IFS:
+double sc[ANTAL + 4];
+
+// Rotators for branches, (cos, sin):
+// (not used anymore, it's in a struct nowdays)
+//  double	trxx [ ANTAL + 4 ], trxy [ ANTAL + 4 ];
+//  double	tryx [ ANTAL + 4 ], tryy [ ANTAL + 4 ];
+
+// Rotators for IFS, (cos, sin, angle):
+double drxx, drxy, drxv;
+double dryx, dryy, dryv;
+double drzx, drzy, drzv;
+
+// Colours for IFS:
+unsigned char tcr[ANTAL + 4];
+unsigned char tcg[ANTAL + 4];
+unsigned char tcb[ANTAL + 4];
+
+// Various variables used to store R, G, B values:
+int bcr, bcg, bcb, dcr, dcg, dcb, crt, cgt, cbt;
+int tRed, tGreen, tBlue;
+
+// Various variables used to store xRGB values:
+long int color, tcolor, bcolor, dcolor;
+
+// Number of colours used:
+int nCols;
+
+// Parameter positions saved here:
+double xbuf[10];
+double ybuf[10];
+double zbuf[10];
+// Index for buffer:
+int ui = 9;
+
+// Number of levels used
+short int ilevels = 18;
+
+// Number of branches selected:
+int numbranch;
+int selnumbranch;
+
+// Index for presets buffers:
+int treeinuse = 0;
+
+// RGB values for maximum 32 levels:
+unsigned char lcr[32];
+unsigned char lcg[32];
+unsigned char lcb[32];
+
+// Increaser/decreaser for tree sizes:
+double twup, twdwn;
+
+// Preset scale ratios:
+double scales[8];
+
+// Index for log + foliage, log and foliage modes:
+int logfoliage = 0;
+
+// Index for use log or cube or sphear:
+int useLoCoS = 0;
+
+// Coloursation-mode:
+int colourmode = 0;
+int LoCoSPali = 0;
+
+// **************
+// **** FILE ****
+// **************
+// Buffer for source file:
+char filebuf[32768];
+// Size of input file:
+unsigned int filesize;
+// File handle:
+FILE *infile;
+
+// Buffer for trees:
+struct ATREE tree[NUMTREES];
+
+/* --------------------------------------------------------------------- *
+                        DECLARE FUNCTIONS
+ * --------------------------------------------------------------------- */
+
+void CamAng(void);
+void clearallbufs(long RGBdata);
+void clearscreen(long RGBdata);
+void clearscreenbufs(long RGBdata);
+void clearViewmess(void);
+void createbackground(void);
+void CreatePalette(void);
+static BOOL doInit(HINSTANCE hInstance, int nCmdShow);
+void DoMyStuff(void);
+void drawBox(void);
+void drawBoxi(void);
+void drawLine(void);
+void drawMulticolLine(void);
+static void finiObjects(void);
+double getlevel(double xmin, double xmax, double ystart, double yend, double x,
+                double Q);
+void IFSlight(void);
+void IFSplot(void);
+void initiateIFS(void);
+void initiatetext(void);
+void leafcols(void);
+void LitAng(void);
+void loadtrees(void);
+void loadtree(void);
+void manual(void);
+void newrender(void);
+void newsetup(void);
+int opensource(const char *fname);
+void pixelsmess(void);
+void printsceneinfo(void);
+void printtreeinfo(void);
+void randombranch(int indx);
+void rotatelight(void);
+void rotateview(void);
+int SGN(double x);
+void ShowPalette(int mode);
+void showpic(void);
+void spacemess(void);
+void stemcols(void);
+void SunCode(void);
+void textline(int curposx, int curposy, char *stringdata, int fontindex,
+              long textcolor);
+void unrotatelight(void);
+void unrotateview(void);
+void viewcols(void);
+void writecols(void);
+
+/* --------------------------------------------------------------------- *
+                        Return sign of x:
+ * --------------------------------------------------------------------- */
+int SGN(double x) {
+  if (x < 0.0f)
+    return (-1);
+  else
+    return (1);
+} // SGN.
+
 /* A general OpenGL initialization function.  Sets all of the initial
  * parameters. */
 void InitGL(
