@@ -12,6 +12,21 @@
 #include <GL/glut.h> // Header File For The GLUT Library
 #include <unistd.h>  // needed to sleep
 
+#define WIN32_LEAN_AND_MEAN
+// #include <ddraw.h>
+#include <math.h>
+// #include <mem.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+// #include <windows.h>
+// #include <windowsx.h>
+
+#include "Makrons.h"
+#include "Treestruct.h"
+
 /* ASCII code for the escape key. */
 #define ESCAPE 27
 
