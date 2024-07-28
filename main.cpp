@@ -462,6 +462,15 @@ int SGN(double x) {
   else
     return (1);
 } // SGN.
+
+void setColour(long c) {
+  unsigned char r = (c & 0x00FF0000) >> 16;
+  unsigned char g = (c & 0x0000FF00) >> 8;
+  unsigned char b = c & 0x000000FF;
+
+  glColor3ub(r, g, b);
+}
+
 void textline(int curposx, int curposy, char *stringdata, int fontindex,
               long textcolor) {
   // FIXME: support setting font size
@@ -480,11 +489,7 @@ void textline(int curposx, int curposy, char *stringdata, int fontindex,
   } // Select font.
   */
 
-  unsigned char r = (textcolor & 0x00FF0000) >> 16;
-  unsigned char g = (textcolor & 0x0000FF00) >> 8;
-  unsigned char b = textcolor & 0x000000FF;
-
-  glColor3ub(r, g, b);
+  setColour(textcolor);
   glRasterPos2i(curposx, curposy);
   glPrint(stringdata);
 }
