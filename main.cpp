@@ -55,13 +55,6 @@ double ylen;    // Length of y.
 double zlen;    // Length of z.
 double llength; // If two lengths of ... is needed.
 
-// Temporary index variables:
-int index;
-int i;
-int j;
-int xi;
-int yi;
-
 // Temporary n-counters:
 int n;
 int p;
