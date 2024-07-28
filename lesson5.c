@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
   glutInitWindowPosition(0, 0);
 
   /* Open a window */
-  window = glutCreateWindow("Jeff Molofee's GL Code Tutorial ... NeHe '99");
+  window = glutCreateWindow("my window");
 
   /* Register the function to do all our OpenGL drawing. */
   glutDisplayFunc(&DrawGLScene);
