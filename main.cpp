@@ -135,14 +135,6 @@ bool lockshadow = false;
 int showbackground;
 int groundsize;
 
-// A rect that containas the whole screen:
-RECT rfsc = {0, 0, WIDTH, HEIGHT};
-// A rect used for anything needed:
-RECT tbox = {0, 0, 0, 0};
-
-// Fonts, three diffrent used here:
-HFONT smallfont, mediumfont, bigfont;
-
 // Number of branches texts:
 const char *textbrmess[8] = {"Random branches", "Two branches",  "Three branches",
                        "Four branches",   "Five branches", "Six branches",
@@ -355,7 +347,6 @@ void clearscreenbufs(long RGBdata);
 void clearViewmess(void);
 void createbackground(void);
 void CreatePalette(void);
-static BOOL doInit(HINSTANCE hInstance, int nCmdShow);
 void DoMyStuff(void);
 void drawBox(void);
 void drawBoxi(void);
