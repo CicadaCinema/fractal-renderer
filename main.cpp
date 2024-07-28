@@ -509,6 +509,10 @@ void DrawGLScene() {
           GL_COLOR_BUFFER_BIT); // Clear The Screen And The Depth Buffer
   glLoadIdentity();             // Reset The View
 
+  glColor3f(1.0f, 0.0f, 0.0f);
+  glRasterPos2i(50, 50);
+  glPrint((char *)"The quick brown fox jumps over the lazy dog.");
+
   // draw a 100x100 green square
   glBegin(GL_POINTS);
   glColor3f(0.0f, 1.0f, 0.0f);
@@ -518,10 +522,6 @@ void DrawGLScene() {
     }
   }
   glEnd();
-
-  glColor3f(1.0f, 0.0f, 0.0f);
-  glRasterPos2i(50, 250);
-  glPrint((char *)"The quick brown fox jumps over the lazy dog.");
 
   // swap the buffers to display, since double buffering is used.
   glutSwapBuffers();
