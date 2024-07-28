@@ -503,7 +503,7 @@ void InitGL(
   glClearColor(0.0f, 0.0f, 0.0f,
                0.0f);      // This Will Clear The Background Color To Black
   glClearDepth(1.0);       // Enables Clearing Of The Depth Buffer
-  glDepthFunc(GL_LESS);    // The Type Of Depth Test To Do
+  glDepthFunc(GL_ALWAYS);  // The Type Of Depth Test To Do
   glEnable(GL_DEPTH_TEST); // Enables Depth Testing
   glShadeModel(GL_SMOOTH); // Enables Smooth Color Shading
 
@@ -549,6 +549,16 @@ void DrawGLScene() {
   glColor3f(0.0f, 1.0f, 0.0f);
   for (int x = 0; x < 100; x++) {
     for (int y = 0; y < 100; y++) {
+      glVertex2i(x, y);
+    }
+  }
+  glEnd();
+
+  // draw a 100x100 red square, on top of the green one
+  glBegin(GL_POINTS);
+  glColor3f(1.0f, 0.0f, 0.0f);
+  for (int x = 50; x < 150; x++) {
+    for (int y = 50; y < 150; y++) {
       glVertex2i(x, y);
     }
   }
