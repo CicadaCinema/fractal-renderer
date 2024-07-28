@@ -136,13 +136,13 @@ int showbackground;
 int groundsize;
 
 // Number of branches texts:
-const char *textbrmess[8] = {"Random branches", "Two branches",  "Three branches",
-                       "Four branches",   "Five branches", "Six branches",
-                       "Seven branches",  "Eight branches"};
+const char *textbrmess[8] = {
+    "Random branches", "Two branches", "Three branches", "Four branches",
+    "Five branches",   "Six branches", "Seven branches", "Eight branches"};
 
 // Background mode, text, colours and text colours:
 const char *textbgmess[5] = {"On skyblue", "On blue", "On black", "Off black",
-                       "Off white"};
+                             "Off white"};
 // note: RGB
 long bgcol[5] = {0x006080C0, 0x00103050, 0x00000000, 0x00000000, 0x00FFFFFF};
 // note: BGR
@@ -166,7 +166,7 @@ double grounds[3] = {
 const char *textlight[2] = {"Dark", "Light"};
 
 const char *textpales[3] = {"Normal (sunspot)", "Flourescent (moonspot)",
-                      "Filament (noonspot)"};
+                            "Filament (noonspot)"};
 
 const char *textfunky[2] = {"FUNKYCOLOURS off", "FUNKYCOLOURS on"};
 // Temporary string buffer:
