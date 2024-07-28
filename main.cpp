@@ -1054,6 +1054,83 @@ void drawBoxi(void) {
   glEnd();
 }
 
+void newrender(void) {
+  // Reset parameters:
+  btx = tx[0];
+  bty = ty[0];
+  btz = tz[0];
+
+  bcr = tcr[0];
+  bcg = tcg[0];
+  bcb = tcb[0];
+
+  dtx = 1.0f;
+  dty = 1.0f;
+  dtz = 1.0f;
+
+  dcr = tcr[4];
+  dcg = tcg[4];
+  dcb = tcb[4];
+
+  // Palette index:
+  pali = 0;
+
+  // Min & max brightness:
+  switch (lightness) {
+  case 1:
+    minbright = (1.0f / 3.0f);
+    maxbright = (1.0f / 2.0f);
+    break;
+  default:
+    minbright = 1.0f;
+    maxbright = 0.0001f;
+    break;
+  } // color selector.
+
+  ui = 0;
+  xbuf[ui] = 0.0f;
+  ybuf[ui] = 0.0f;
+  zbuf[ui] = 0.0f;
+}
+
+void SunCode(void) {
+  TEXTBOX(10, 10, 67, 26, 0x00A0A0A0, 0x00FFFFFF);
+  textline(10, 10, (char *)"SunCode", BIGFONT, 0x00400000);
+}
+
+void clearscreenbufs(long RGBdata) {
+  // Clear iteration and pixel counter:
+  itersdone = 0;
+  pixelswritten = 0;
+
+  for (p = 0; p < BHEIGHT; p++) {
+    for (r = 0; r < BWIDTH; r++) {
+      // pixels-buffer:
+      pict[p][r] = RGBdata;
+      // View Z-buffer:
+      bpict[p][r] = 0;
+    }
+  }
+}
+
+void clearallbufs(long RGBdata) {
+  // Clear pixel counter for shadow map:
+  shadowswritten = 0;
+
+  if (lockshadow)
+    trees[treeinuse].radius /= sqrtl(twup);
+
+  lockshadow = false;
+
+  // Light-source Z-buffer:
+  for (p = 0; p < LHEIGHT; p++)
+    for (r = 0; r < LWIDTH; r++)
+      light[p][r] = 0;
+
+  // Image pixel & z-buffer:
+  clearscreenbufs(RGBdata);
+}
+
 /* A general OpenGL initialization function.  Sets all of the initial
  * parameters. */
 void InitGL(
