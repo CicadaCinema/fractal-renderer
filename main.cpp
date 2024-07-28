@@ -336,6 +336,8 @@ FILE *infile;
 // Buffer for trees:
 struct ATREE tree[NUMTREES];
 
+bool paintOnNextFrame;
+
 /* --------------------------------------------------------------------- *
                         DECLARE FUNCTIONS
  * --------------------------------------------------------------------- */
@@ -1176,10 +1178,32 @@ void DrawGLScene() {
           GL_COLOR_BUFFER_BIT); // Clear The Screen And The Depth Buffer
   glLoadIdentity();             // Reset The View
 
-  manual();
-
-  // swap the buffers to display, since double buffering is used.
-  glutSwapBuffers();
+  if (paintOnNextFrame) {
+    switch (programMode) {
+    case 0:
+      // Copy & ant-anilize from pixel-buffer to screen:
+      showpic();
+      // Initiate iteration parameters:
+      newrender();
+      renderactive = true;
+      // Clear screen if set was changed?:
+      if (newset) {
+        clearallbufs(bgcol[showbackground]);
+        newset = false;
+        // Then - agin! =)
+        showpic();
+      }
+      // "tag" screen =)
+      SunCode();
+      break;
+    case 1:
+      // View info screen:
+      manual();
+      break;
+    }
+    glutSwapBuffers();
+    paintOnNextFrame = false;
+  }
 }
 
 /* The function called whenever a key is pressed down. */
@@ -1219,6 +1243,9 @@ void keyUpCallback(unsigned char key, int x, int y) {
 }
 
 int main(int argc, char **argv) {
+  // my initial state
+  paintOnNextFrame = true;
+
   /* Initialize GLUT state - glut will take any command line arguments that
      pertain to it or X Windows - look at its documentation at
      http://reality.sgi.com/mjk/spec3/spec3.html */
