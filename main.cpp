@@ -555,8 +555,8 @@ int main(int argc, char **argv) {
      Depth buffered for automatic clipping */
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
 
-  /* get a 640 x 480 window */
-  glutInitWindowSize(640, 480);
+  /* get a window */
+  glutInitWindowSize(WIDTH, HEIGHT);
 
   /* the window starts at the upper left corner of the screen */
   glutInitWindowPosition(0, 0);
