@@ -109,7 +109,6 @@ bool renderactive = false;
 int programMode = 1;
 
 // Image buffers & stuff:
-long *lpBuf;                // Pointer to screen buffer.
 long lk;                    // Size of screen line, (y coordinate incrementor).
 long lpCols[PALSIZE];       // Buffer for colour palette.
 long pict[BHEIGHT][BWIDTH]; // Buffer for picture.
