@@ -504,7 +504,7 @@ int main(int argc, char **argv) {
   glutKeyboardFunc(&keyPressed);
 
   /* Initialize our window. */
-  InitGL(640, 480);
+  InitGL(WIDTH, HEIGHT);
 
   /* Start Event Processing Engine */
   glutMainLoop();
