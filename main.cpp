@@ -494,6 +494,57 @@ void textline(int curposx, int curposy, char *stringdata, int fontindex,
   glPrint(stringdata);
 }
 
+void drawBoxi(void) {
+  int boxw, boxh;
+
+  // clip:
+  if (lixs < 0)
+    lixs = 0;
+  if (lixs >= WIDTH)
+    lixs = WIDTH - 1;
+
+  if (lixe < 0)
+    lixe = 0;
+  if (lixe >= WIDTH)
+    lixe = WIDTH - 1;
+
+  if (liys < 0)
+    liys = 0;
+  if (liys >= HEIGHT)
+    liys = HEIGHT - 1;
+
+  if (liye < 0)
+    liye = 0;
+  if (liye >= HEIGHT)
+    liye = HEIGHT - 1;
+  // clip ends.
+
+  // Swap coords?
+  if (lixs > lixe) {
+    tmp = lixs;
+    lixs = lixe;
+    lixe = tmp;
+  }
+  if (liys > liye) {
+    tmp = liys;
+    liys = liye;
+    liye = tmp;
+  }
+
+  // Calculate with & height of box:
+  boxw = lixe - lixs;
+  boxh = liye - liys;
+
+  glBegin(GL_POINTS);
+  setColour(lcol);
+  do {
+    for (int index = 0; index < boxw; index++)
+      glVertex2i(index + lixs, liys);
+    liys++;
+  } while (--boxh > 0);
+  glEnd();
+}
+
 /* A general OpenGL initialization function.  Sets all of the initial
  * parameters. */
 void InitGL(
@@ -563,6 +614,8 @@ void DrawGLScene() {
     }
   }
   glEnd();
+
+  TEXTBOX(350, 200, 400, 300, 0x00FFFFFF, 0x000000FF);
 
   // swap the buffers to display, since double buffering is used.
   glutSwapBuffers();
