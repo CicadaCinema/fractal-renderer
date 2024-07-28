@@ -151,12 +151,12 @@ RECT tbox = {0, 0, 0, 0};
 HFONT smallfont, mediumfont, bigfont;
 
 // Number of branches texts:
-char *textbrmess[8] = {"Random branches", "Two branches",  "Three branches",
+const char *textbrmess[8] = {"Random branches", "Two branches",  "Three branches",
                        "Four branches",   "Five branches", "Six branches",
                        "Seven branches",  "Eight branches"};
 
 // Background mode, text, colours and text colours:
-char *textbgmess[5] = {"On skyblue", "On blue", "On black", "Off black",
+const char *textbgmess[5] = {"On skyblue", "On blue", "On black", "Off black",
                        "Off white"};
 // note: RGB
 long bgcol[5] = {0x006080C0, 0x00103050, 0x00000000, 0x00000000, 0x00FFFFFF};
@@ -164,7 +164,7 @@ long bgcol[5] = {0x006080C0, 0x00103050, 0x00000000, 0x00000000, 0x00FFFFFF};
 long txcol[5] = {0x0040FFFF, 0x0080FFFF, 0x00FFFFFF, 0x0000FFFF, 0x00800000};
 
 // Ground size texts:
-char *textgrmess[3] = {
+const char *textgrmess[3] = {
     "Big ground",
     "Medium ground",
     "Small ground",
@@ -178,12 +178,12 @@ double grounds[3] = {
 };
 
 // Light model texts:
-char *textlight[2] = {"Dark", "Light"};
+const char *textlight[2] = {"Dark", "Light"};
 
-char *textpales[3] = {"Normal (sunspot)", "Flourescent (moonspot)",
+const char *textpales[3] = {"Normal (sunspot)", "Flourescent (moonspot)",
                       "Filament (noonspot)"};
 
-char *textfunky[2] = {"FUNKYCOLOURS off", "FUNKYCOLOURS on"};
+const char *textfunky[2] = {"FUNKYCOLOURS off", "FUNKYCOLOURS on"};
 // Temporary string buffer:
 char stringbuf[256];
 
