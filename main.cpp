@@ -1206,6 +1206,32 @@ void DrawGLScene() {
   }
 }
 
+void keyDownCallbackSpecial(int key, int x, int y) {
+  /* avoid thrashing this call */
+  usleep(100);
+
+  switch (key) {
+  case GLUT_KEY_PAGE_UP:
+    printf("PAGEUP pressed down\n");
+    break;
+  default:
+    break;
+  }
+}
+
+void keyUpCallbackSpecial(int key, int x, int y) {
+  /* avoid thrashing this call */
+  usleep(100);
+
+  switch (key) {
+  case GLUT_KEY_PAGE_UP:
+    printf("PAGEUP released\n");
+    break;
+  default:
+    break;
+  }
+}
+
 /* The function called whenever a key is pressed down. */
 void keyDownCallback(unsigned char key, int x, int y) {
   /* avoid thrashing this call */
@@ -1279,6 +1305,8 @@ int main(int argc, char **argv) {
   /* Register the functions called when the keyboard is pressed. */
   glutKeyboardUpFunc(&keyUpCallback);
   glutKeyboardFunc(&keyDownCallback);
+  glutSpecialUpFunc(&keyUpCallbackSpecial);
+  glutSpecialFunc(&keyDownCallbackSpecial);
 
   /* Initialize our window. */
   InitGL(WIDTH, HEIGHT);
