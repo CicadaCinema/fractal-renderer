@@ -456,6 +456,289 @@ GLvoid glPrint(char *text) // custom gl print routine.
   glPopAttrib();     // undoes the glPushAttrib(GL_LIST_BIT);
 }
 
+void createbackground(void) {
+  // Size of ground square:
+  x = grounds[groundsize];
+  // Heihgt: (center as is =)
+  t = 0.0f;
+
+  // Translation coordinates:
+  tx[0] = -x;
+  ty[0] = t;
+  tz[0] = x;
+
+  tx[1] = x;
+  ty[1] = t;
+  tz[1] = x;
+
+  tx[2] = x;
+  ty[2] = t;
+  tz[2] = -x;
+
+  tx[3] = -x;
+  ty[3] = t;
+  tz[3] = -x;
+
+  // Colours:
+  tcr[2] = tcr[0] = 0xFF * RND;
+  tcg[2] = tcg[0] = 0xFF * RND;
+  tcb[2] = tcb[0] = 0xFF * RND;
+  tcr[3] = tcr[1] = 0xFF;
+  tcg[3] = tcg[1] = 0xFF;
+  tcb[3] = tcb[1] = 0xFF;
+
+  // Scale:
+  for (int i = 0; i < 4; i++)
+    sc[i] = (1.0f / 2.0f);
+}
+
+void randombranch(int indx) {
+  if (indx == 0) {
+    // Always set 'stem' to top of the stub:
+    branches[31][indx].height = 1.0f;
+    // Choose phase for slope angle:
+    // Rather point up than sideways for stem-branch (RND^3):
+    t = RND * RND * RND;
+  } else {
+    // Set height of stem where the brach resides:
+    branches[31][indx].height = 1.0f - RND * RND * 0.9f;
+    // Choose phase for slope angle:
+    t = RND * RND;
+  }
+
+  // Set scale:
+  branches[31][indx].scale = scales[int(RND * 7)];
+
+  // Set random slope angle:
+  angle = 180.0f * rad * t;
+  branches[31][indx].leans = sinl(angle);
+  branches[31][indx].leanc = cosl(angle);
+
+  // Set random rotation angle:
+  angle = 360.0f * rad * RND;
+  branches[31][indx].rotates = cosl(angle);
+  branches[31][indx].rotatec = sinl(angle);
+
+  // Set random twist angle:
+  angle = 360.0f * rad * RND;
+  branches[31][indx].twistc = cosl(angle);
+  branches[31][indx].twists = sinl(angle);
+}
+
+void leafcols(void) {
+  switch (colourmode) {
+  case FUNKYCOLOURS:
+    for (int i = 4; i < (ANTAL + 4); i++) {
+      tcr[i] = 0xFF * RND;
+      tcg[i] = 0xFF * RND;
+      tcb[i] = 0xFF * RND;
+    }
+    break; // FUNKYCOLOURS.
+  case NORMALCOLOURS:
+  default:
+    for (int i = 4; i < (ANTAL + 4); i++) {
+      tcr[i] = 0x60 + 160 * RND * RND;
+      tcg[i] = 0x80 + 128 * RND;
+      tcb[i] = 0x20 + 32 * RND;
+    }
+    break; // NORMALCOLOURS.
+  } // Switch colourmode.
+}
+
+void stemcols(void) {
+  for (int i = 0; i <= ilevels; i++) {
+    lcr[i] = 0xFF;
+    lcg[i] = 0xC0;
+    lcb[i] = 0x80;
+  }
+
+  lcr[0] = 0x00;
+  lcg[0] = 0x80;
+  lcb[0] = 0x00;
+
+  lcr[1] = 0x30;
+  lcg[1] = 0x90;
+  lcb[1] = 0x10;
+
+  lcr[3] = 0x60;
+  lcg[3] = 0xA0;
+  lcb[3] = 0x30;
+
+  lcr[4] = 0xC0;
+  lcg[4] = 0xB0;
+  lcb[4] = 0x50;
+
+  lcr[ilevels] = 0x10 * 12;
+  lcg[ilevels] = 0x0C * 12;
+  lcb[ilevels] = 0x08 * 12;
+
+  lcr[ilevels - 1] = 0x10 * 13;
+  lcg[ilevels - 1] = 0x0C * 13;
+  lcb[ilevels - 1] = 0x08 * 13;
+
+  lcr[ilevels - 2] = 0x10 * 14;
+  lcg[ilevels - 2] = 0x0C * 14;
+  lcb[ilevels - 2] = 0x08 * 14;
+
+  lcr[ilevels - 3] = 0x10 * 15;
+  lcg[ilevels - 3] = 0x0C * 15;
+  lcb[ilevels - 3] = 0x08 * 15;
+}
+
+void LitAng(void) {
+  lryx = cosl(lryv);
+  lryy = sinl(lryv);
+  lrxx = cosl(lrxv);
+  lrxy = sinl(lrxv);
+}
+
+void CamAng(void) {
+  ryx = cosl(ryv);
+  ryy = sinl(ryv);
+  rxx = cosl(rxv);
+  rxy = sinl(rxv);
+}
+
+void clearViewmess(void) {
+  textline(360, 2, (char *)"Press [V] to clear view.", MEDIUMFONT,
+           txcol[showbackground]);
+}
+
+void pixelsmess(void) {
+  sprintf(
+      stringbuf,
+      "%li iterations done, %li image pixels, %li shadow pixels.  (press [V] "
+      "to clear view).",
+      itersdone, pixelswritten, shadowswritten);
+  textline(192, 2, stringbuf, MEDIUMFONT, lcol);
+}
+
+void newsetup(void) {
+  // A rest from my 3D reversed Julia IFS demo:
+  // (http://members.chello.se/solgrop/3djulia.htm)
+  // Was used to select among presets. Also stored the.
+  // coordinate for the diffrent presets, that part remains.
+  ui = 0;
+
+  // Preset a number of scale ratios:
+  scales[0] = sqrtl(2.0f / 3.0f);
+  scales[1] = sqrtl(1.0f / 2.0f);
+  scales[2] = (2.0f / 3.0f);
+  scales[3] = (phi - 1.0f);
+  scales[4] = sqrtl(1.0f / 3.0f);
+  scales[5] = (1.0f / 2.0f);
+  scales[6] = (2.0f - phi);
+
+  //////////////////////////////
+  // *** FRACTAL SETUPS ! *** //
+
+  //////////////////////////////
+
+  // 2D Sierpinski squares as ground plate:
+  createbackground();
+
+  // Use 'half-note' steps for size modifier:
+  t = (1.0f / 64.0f);
+  twup = pow(2.0f, t);
+  twdwn = pow(2.0f, -t);
+
+  // ********************
+  // RANDOMIZE PRESET #31
+  // ********************
+  //(And that's #00 in the demo, I'm using (n+1) AND 0x1F
+  // for print, but it is not the first tree in the list =)
+
+  // First name the tree:
+  strcpy(trees[31].name, "Random Tree");
+
+  // Set number of branches for the tree:
+  // (First case is 'random branches',
+  //  second uses the preset numbers).
+  if (selnumbranch == 0)
+    numbranch = 2 + RND * RND * 7;
+  else
+    numbranch = selnumbranch + 1;
+  trees[31].branches = numbranch;
+
+  // Randomize flags:
+  trees[31].usehig = RNDBOOL;
+  trees[31].glblscl = RNDBOOL;
+  trees[31].sctrnsl = RNDBOOL;
+  trees[31].usetwst = RNDBOOL;
+
+  // Randomize radius and height for the root-stem (stub):
+  t = (1.0 + RND);
+  trees[31].radius = 0.002f + 0.04f * RND * RND;
+  trees[31].height = -t / (4.0f + (12.0f * RND));
+
+  // Randomize branches:
+  // (Height, scale, slope and rotation).
+  for (int i = 0; i < 8; i++)
+    randombranch(i);
+
+  // Create colours for the leafs:
+  leafcols();
+
+  // And the colours for the stem:
+  stemcols();
+
+  // End Fractal!
+
+  /// ******* Light & Camera ******* ///
+
+  // Light-angle:
+  lryv = -26.0f * rad;
+  lrxv = 45.0f * rad;
+  LitAng();
+
+  // Calculate position of light source!
+  ntx = 0.0f;
+  nty = 0.0f;
+  ntz = 1.0f;
+
+  // Rotate to position!
+  t = lryx * yt - lryy * zt;
+  zt = lryx * zt + lryy * yt;
+  yt = t;
+
+  t = lrxx * zt - lrxy * xt;
+  xt = lrxx * xt + lrxy * zt;
+  zt = t;
+
+  // Camera-angle:
+  ryv = 0.0f * rad;
+  rxv = 0.0f * rad;
+  CamAng();
+  // Camera-angle.
+
+  // IFS rotators!
+  drzv = 0.0f * rad;
+  drzx = cosl(drzv);
+  drzy = sinl(drzv);
+  dryv = 0.0f * rad;
+  dryx = cosl(dryv);
+  dryy = sinl(dryv);
+
+  // Reset parameters!
+  btx = tx[0];
+  bty = ty[0];
+  btz = tz[0];
+
+  bcr = tcr[0];
+  bcg = tcg[0];
+  bcb = tcb[0];
+
+  dtx = tx[4];
+  dty = ty[4];
+  dtz = tz[4];
+
+  dcr = tcr[4];
+  dcg = tcg[4];
+  dcb = tcb[4];
+
+  newrender();
+}
+
 /* --------------------------------------------------------------------- *
                         Return sign of x:
  * --------------------------------------------------------------------- */
@@ -1211,6 +1494,8 @@ void keyDownCallbackSpecial(int key, int x, int y) {
   /* avoid thrashing this call */
   usleep(100);
 
+  bool valid_keypress = true;
+
   // Do keys, (two modes)
   switch (programMode) {
   case 0:
@@ -1306,6 +1591,9 @@ void keyDownCallbackSpecial(int key, int x, int y) {
       printtreeinfo();
       SunCode();
       break; // F4.
+    default:
+      valid_keypress = false;
+      break;
 
     } // wparam (render screen).
     break;
@@ -1347,10 +1635,20 @@ void keyDownCallbackSpecial(int key, int x, int y) {
       clearscreenbufs(bgcol[showbackground]);
       printtreeinfo();
       break; // F4.
+    default:
+      valid_keypress = false;
+      break;
 
     } // wparam (info screen).
 
     break;
+  default:
+    valid_keypress = false;
+    break;
+  }
+
+  if (valid_keypress) {
+    glutSwapBuffers();
   }
 }
 
@@ -1360,6 +1658,8 @@ void keyUpCallbackSpecial(int key, int x, int y) {
 
   // Functions only active if render screen:
   if (renderactive) {
+    bool valid_keypress = true;
+
     switch (key) {
     case GLUT_KEY_PAGE_UP:
     case GLUT_KEY_PAGE_DOWN:
@@ -1375,6 +1675,13 @@ void keyUpCallbackSpecial(int key, int x, int y) {
       clearscreen(bgcol[showbackground]);
       SunCode();
       break; // Clear screen keys.
+    default:
+      valid_keypress = false;
+      break;
+    }
+
+    if (valid_keypress) {
+      glutSwapBuffers();
     }
   }
 }
@@ -1383,6 +1690,8 @@ void keyUpCallbackSpecial(int key, int x, int y) {
 void keyDownCallback(unsigned char key, int x, int y) {
   /* avoid thrashing this call */
   usleep(100);
+
+  bool valid_keypress = true;
 
   // Do keys, (two modes)
   switch (programMode) {
@@ -1629,6 +1938,9 @@ void keyDownCallback(unsigned char key, int x, int y) {
       trees[treeinuse].height *= twup;
       newrender();
       break; // X.
+    default:
+      valid_keypress = false;
+      break;
 
     } // wparam (render screen).
     break;
@@ -1746,10 +2058,20 @@ void keyDownCallback(unsigned char key, int x, int y) {
       newset = true;
       printsceneinfo();
       break; // W.
+    default:
+      valid_keypress = false;
+      break;
 
     } // wparam (info screen).
 
     break;
+  default:
+    valid_keypress = false;
+    break;
+  }
+
+  if (valid_keypress) {
+    glutSwapBuffers();
   }
 }
 
@@ -1760,6 +2082,8 @@ void keyUpCallback(unsigned char key, int x, int y) {
 
   // Functions only active if render screen:
   if (renderactive) {
+    bool valid_keypress = true;
+
     switch (key) {
     case 'D':
     case 'F':
@@ -1769,6 +2093,13 @@ void keyUpCallback(unsigned char key, int x, int y) {
       clearscreen(bgcol[showbackground]);
       SunCode();
       break; // Clear all keys.
+    default:
+      valid_keypress = false;
+      break;
+    }
+
+    if (valid_keypress) {
+      glutSwapBuffers();
     }
   }
 }
