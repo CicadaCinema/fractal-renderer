@@ -1352,14 +1352,6 @@ void keyDownCallbackSpecial(int key, int x, int y) {
 
     break;
   }
-
-  switch (key) {
-  case GLUT_KEY_PAGE_UP:
-    printf("PAGEUP pressed down\n");
-    break;
-  default:
-    break;
-  }
 }
 
 void keyUpCallbackSpecial(int key, int x, int y) {
@@ -1385,14 +1377,6 @@ void keyUpCallbackSpecial(int key, int x, int y) {
       break; // Clear screen keys.
     }
   }
-
-  switch (key) {
-  case GLUT_KEY_PAGE_UP:
-    printf("PAGEUP released\n");
-    break;
-  default:
-    break;
-  }
 }
 
 /* The function called whenever a key is pressed down. */
@@ -1405,6 +1389,14 @@ void keyDownCallback(unsigned char key, int x, int y) {
   case 0:
     // Render screen:
     switch (key) {
+    case ESCAPE:
+      /* If escape is pressed, kill everything. */
+      /* shut down our window */
+      glutDestroyWindow(window);
+
+      /* exit the program...normal termination. */
+      exit(0);
+      break;
     case ' ':
       renderactive = false;
       programMode = 1;
@@ -1644,6 +1636,14 @@ void keyDownCallback(unsigned char key, int x, int y) {
     // Intro screen:
   case 1:
     switch (key) {
+    case ESCAPE:
+      /* If escape is pressed, kill everything. */
+      /* shut down our window */
+      glutDestroyWindow(window);
+
+      /* exit the program...normal termination. */
+      exit(0);
+      break;
     case ' ':
       programMode = 0;
       paintOnNextFrame = true;
@@ -1751,22 +1751,6 @@ void keyDownCallback(unsigned char key, int x, int y) {
 
     break;
   }
-
-  switch (key) {
-  case ESCAPE:
-    /* If escape is pressed, kill everything. */
-    /* shut down our window */
-    glutDestroyWindow(window);
-
-    /* exit the program...normal termination. */
-    exit(0);
-    break;
-  case 'a':
-    printf("a pressed down\n");
-    break;
-  default:
-    break;
-  }
 }
 
 /* The function called whenever a key is released. */
@@ -1786,14 +1770,6 @@ void keyUpCallback(unsigned char key, int x, int y) {
       SunCode();
       break; // Clear all keys.
     }
-  }
-
-  switch (key) {
-  case 'a':
-    printf("a released\n");
-    break;
-  default:
-    break;
   }
 }
 
