@@ -7,6 +7,7 @@
 // Visit me at www.demonews.com/hosted/nehe
 // (email Richard Campbell at ulmont@bellsouth.net)
 //
+#include <GL/freeglut_std.h>
 #include <GL/gl.h>   // Header File For The OpenGL32 Library
 #include <GL/glu.h>  // Header File For The GLu32 Library
 #include <GL/glut.h> // Header File For The GLUT Library
@@ -1210,6 +1211,148 @@ void keyDownCallbackSpecial(int key, int x, int y) {
   /* avoid thrashing this call */
   usleep(100);
 
+  // Do keys, (two modes)
+  switch (programMode) {
+  case 0:
+    // Render screen:
+    switch (key) {
+      // FIXME: do we even need this? we already have such functionality
+      /*
+  case VK_ESCAPE:
+    renderactive = false;
+    PostMessage(hWnd, WM_CLOSE, 0, 0);
+    break; // Escape.
+       */
+
+    case GLUT_KEY_PAGE_UP:
+      imszoom *= twup;
+      break; // page up.
+
+    case GLUT_KEY_PAGE_DOWN:
+      imszoom *= twdwn;
+      break; // page down.
+
+    case GLUT_KEY_HOME:
+      ryv = 0.0f * rad;
+      rxv = 0.0f * rad;
+      CamAng();
+      imszoom = 1.0f;
+      newrender();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      break; // page down.
+
+    case GLUT_KEY_UP:
+      rxv += 0.01f;
+      if (int(rxv) > 180)
+        rxv = 180.0f;
+      CamAng();
+      break; // Up key.
+
+    case GLUT_KEY_RIGHT:
+      ryv += 0.01f;
+      if (int(ryv) > 180)
+        ryv = 180.0f;
+      CamAng();
+      break; // Right key.
+
+    case GLUT_KEY_DOWN:
+      rxv -= 0.01f;
+      if (int(rxv) < -180)
+        rxv = -180.0f;
+      CamAng();
+      break; // Down key.
+
+    case GLUT_KEY_LEFT:
+      ryv -= 0.01f;
+      if (int(ryv) < -180)
+        ryv = -180.0f;
+      CamAng();
+      break; // Left key.
+
+    case GLUT_KEY_F1:
+      trees[treeinuse].usehig = (trees[treeinuse].usehig + 1) & 0x01;
+      newrender();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      printtreeinfo();
+      SunCode();
+      break; // F1.
+
+    case GLUT_KEY_F2:
+      trees[treeinuse].glblscl = (trees[treeinuse].glblscl + 1) & 0x01;
+      newrender();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      printtreeinfo();
+      SunCode();
+      break; // F2.
+
+    case GLUT_KEY_F3:
+      trees[treeinuse].sctrnsl = (trees[treeinuse].sctrnsl + 1) & 0x01;
+      newrender();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      printtreeinfo();
+      SunCode();
+      break; // F3.
+
+    case GLUT_KEY_F4:
+      trees[treeinuse].usetwst = (trees[treeinuse].usetwst + 1) & 0x01;
+      newrender();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      printtreeinfo();
+      SunCode();
+      break; // F4.
+
+    } // wparam (render screen).
+    break;
+
+    // Intro screen:
+  case 1:
+    switch (key) {
+      // FIXME: do we even need this? we already have such functionality
+      /*
+  case VK_ESCAPE:
+    PostMessage(hWnd, WM_CLOSE, 0, 0);
+    break; // Escape.
+       */
+
+    case GLUT_KEY_F1:
+      trees[treeinuse].usehig = (trees[treeinuse].usehig + 1) & 0x01;
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      printtreeinfo();
+      break; // F1.
+
+    case GLUT_KEY_F2:
+      trees[treeinuse].glblscl = (trees[treeinuse].glblscl + 1) & 0x01;
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      printtreeinfo();
+      break; // F2.
+
+    case GLUT_KEY_F3:
+      trees[treeinuse].sctrnsl = (trees[treeinuse].sctrnsl + 1) & 0x01;
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      printtreeinfo();
+      break; // F3.
+
+    case GLUT_KEY_F4:
+      trees[treeinuse].usetwst = (trees[treeinuse].usetwst + 1) & 0x01;
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      printtreeinfo();
+      break; // F4.
+
+    } // wparam (info screen).
+
+    break;
+  }
+
   switch (key) {
   case GLUT_KEY_PAGE_UP:
     printf("PAGEUP pressed down\n");
@@ -1222,6 +1365,26 @@ void keyDownCallbackSpecial(int key, int x, int y) {
 void keyUpCallbackSpecial(int key, int x, int y) {
   /* avoid thrashing this call */
   usleep(100);
+
+  // Functions only active if render screen:
+  if (renderactive) {
+    switch (key) {
+    case GLUT_KEY_PAGE_UP:
+    case GLUT_KEY_PAGE_DOWN:
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      break; // Clear all keys.
+    case GLUT_KEY_LEFT:
+    case GLUT_KEY_RIGHT:
+    case GLUT_KEY_DOWN:
+    case GLUT_KEY_UP:
+      clearscreenbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      break; // Clear screen keys.
+    }
+  }
 
   switch (key) {
   case GLUT_KEY_PAGE_UP:
@@ -1236,6 +1399,358 @@ void keyUpCallbackSpecial(int key, int x, int y) {
 void keyDownCallback(unsigned char key, int x, int y) {
   /* avoid thrashing this call */
   usleep(100);
+
+  // Do keys, (two modes)
+  switch (programMode) {
+  case 0:
+    // Render screen:
+    switch (key) {
+    case ' ':
+      renderactive = false;
+      programMode = 1;
+      paintOnNextFrame = true;
+      break;
+      // FIXME: implement these keys exactly!
+      /*
+  case '1':
+  case '2':
+  case '3':
+  case '4':
+  case '5':
+  case '6':
+  case '7':
+  case '8':
+    randombranch(wParam - 49);
+    clearallbufs(bgcol[showbackground]);
+    clearscreen(bgcol[showbackground]);
+    printtreeinfo();
+    writecols();
+    clearViewmess();
+    SunCode();
+    break; // 1 - 8.
+       */
+
+    case 'A':
+      ryv = -180.0f * rad + RND * 360.0f * rad;
+      ryx = cosl(ryv);
+      ryy = sinl(ryv);
+      rxv = -10.0f * rad + RND * 100.0f * rad;
+      rxx = cosl(rxv);
+      rxy = sinl(rxv);
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      break; // A.
+
+    case 'B':
+      showbackground++;
+      if (showbackground > 4)
+        showbackground = 0;
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      writecols();
+      clearViewmess();
+      break; // B.
+
+    case 'C':
+      clearscreenbufs(bgcol[showbackground]);
+      trees[treeinuse].radius *= sqrtl(twup);
+      break; // C.
+
+    case 'D':
+      trees[treeinuse].radius *= twup;
+      newrender();
+      break; // D.
+
+    case 'E':
+      if (++logfoliage >= 3)
+        logfoliage = 0;
+      newrender();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      printsceneinfo();
+      if (logfoliage != 1)
+        writecols();
+      break; // E.
+
+    case 'F':
+      trees[treeinuse].radius *= twdwn;
+      newrender();
+      break; // F.
+
+    case 'G':
+      groundsize++;
+      if (groundsize > 2)
+        groundsize = 0;
+      // Re initiate ground-IFS
+      createbackground();
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      printsceneinfo();
+      break; // G.
+
+    case 'I':
+      printsceneinfo();
+      lcol = txcol[showbackground];
+      pixelsmess();
+      printtreeinfo();
+      writecols();
+      if (colourmode)
+        ShowPalette(ABSZ);
+      SunCode();
+      break; // I.
+
+      // Don't push this key!!!
+      // (The function does not work good yet.)
+    case 'K':
+      if (!lockshadow)
+        lockshadow = true;
+      trees[treeinuse].radius *= sqrtl(twup);
+      clearscreenbufs(bgcol[showbackground]);
+      break; // K.
+
+    case 'L':
+      lightness++;
+      if (lightness > 1)
+        lightness = 0;
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      printsceneinfo();
+      break; // L.
+
+    case 'M':
+      if (++treeinuse >= NUMTREES)
+        treeinuse = 0;
+      newsetup();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      printtreeinfo();
+      printsceneinfo();
+      writecols();
+      break; // M.
+
+    case 'N':
+      if (++selnumbranch > 7)
+        selnumbranch = 0;
+      newsetup();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      printtreeinfo();
+      printsceneinfo();
+      writecols();
+      break; // N.
+
+    case 'O':
+      clearscreen(bgcol[showbackground]);
+      if (++colourmode > 1)
+        colourmode = 0;
+      if (colourmode) {
+        CreatePalette();
+        ShowPalette(ABSZ);
+      }
+      stemcols();
+      leafcols();
+      printsceneinfo();
+      newrender();
+      writecols();
+      clearViewmess();
+      clearscreenbufs(bgcol[showbackground]);
+      SunCode();
+      break; // N.
+
+    case 'P':
+      clearscreen(bgcol[showbackground]);
+      if (colourmode) {
+        CreatePalette();
+        ShowPalette(ABSZ);
+      }
+      stemcols();
+      leafcols();
+      printsceneinfo();
+      newrender();
+      writecols();
+      clearViewmess();
+      clearscreenbufs(bgcol[showbackground]);
+      SunCode();
+      break; // P.
+
+    case 'R':
+      treeinuse = 31;
+      newsetup();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      printtreeinfo();
+      writecols();
+      clearViewmess();
+      SunCode();
+      break; // R.
+
+    case 'S':
+      trees[treeinuse].height *= twdwn;
+      newrender();
+      break; // S.
+
+    case 'T':
+      FILLBOX(0, 0, WIDTH, HEIGHT, 0x00FFFFFF);
+      SunCode();
+      lcol = 0x00000080;
+      pixelsmess();
+      break; // T.
+
+    case 'U':
+      if (++useLoCoS >= 3)
+        useLoCoS = 0;
+      else
+        trees[treeinuse].radius = fabsl(trees[treeinuse].height / 2.0f);
+      newrender();
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      break; // U.
+
+    case 'V':
+      showpic();
+      break; // V.
+
+    case 'W':
+      whitershade++;
+      if (whitershade > 2)
+        whitershade = 0;
+      newrender();
+      clearscreenbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      printsceneinfo();
+      break; // W.
+
+    case 'X':
+      trees[treeinuse].height *= twup;
+      newrender();
+      break; // X.
+
+    } // wparam (render screen).
+    break;
+
+    // Intro screen:
+  case 1:
+    switch (key) {
+    case ' ':
+      programMode = 0;
+      paintOnNextFrame = true;
+      break; // Space.
+
+    case 'B':
+      showbackground++;
+      if (showbackground > 4)
+        showbackground = 0;
+      newrender();
+      newset = true;
+      printsceneinfo();
+      viewcols();
+      break; // B.
+
+    case 'E':
+      if (++logfoliage >= 3)
+        logfoliage = 0;
+      newrender();
+      clearallbufs(bgcol[showbackground]);
+      break; // E.
+
+    case 'I':
+      printsceneinfo();
+      printtreeinfo();
+      break; // I.
+
+    case 'L':
+      lightness++;
+      if (lightness > 1)
+        lightness = 0;
+      newrender();
+      newset = true;
+      printsceneinfo();
+      break; // L.
+
+    case 'M':
+      if (++treeinuse >= NUMTREES)
+        treeinuse = 0;
+      newsetup();
+      clearallbufs(bgcol[showbackground]);
+      viewcols();
+      printtreeinfo();
+      break; // M.
+
+    case 'N':
+      if (++selnumbranch > 7)
+        selnumbranch = 0;
+      newsetup();
+      clearallbufs(bgcol[showbackground]);
+      viewcols();
+      printsceneinfo();
+      printtreeinfo();
+      break; // N.
+
+    case 'O':
+      if (++colourmode > 1)
+        colourmode = 0;
+      if (colourmode)
+        CreatePalette();
+      stemcols();
+      leafcols();
+      newrender();
+      viewcols();
+      printsceneinfo();
+      clearscreenbufs(bgcol[showbackground]);
+      break; // N.
+
+    case 'P':
+      if (colourmode)
+        CreatePalette();
+      stemcols();
+      leafcols();
+      newrender();
+      viewcols();
+      clearscreenbufs(bgcol[showbackground]);
+      break; // P.
+
+    case 'R':
+      treeinuse = 31;
+      newsetup();
+      newset = true;
+      printtreeinfo();
+      viewcols();
+      break; // R.
+
+    case 'U':
+      if (++useLoCoS >= 3)
+        useLoCoS = 0;
+      else
+        trees[treeinuse].radius = (fabsl(trees[treeinuse].height) / 3.0f);
+      newrender();
+      break; // U.
+
+    case 'W':
+      whitershade++;
+      if (whitershade > 2)
+        whitershade = 0;
+      newrender();
+      newset = true;
+      printsceneinfo();
+      break; // W.
+
+    } // wparam (info screen).
+
+    break;
+  }
 
   switch (key) {
   case ESCAPE:
@@ -1258,6 +1773,20 @@ void keyDownCallback(unsigned char key, int x, int y) {
 void keyUpCallback(unsigned char key, int x, int y) {
   /* avoid thrashing this call */
   usleep(100);
+
+  // Functions only active if render screen:
+  if (renderactive) {
+    switch (key) {
+    case 'D':
+    case 'F':
+    case 'S':
+    case 'X':
+      clearallbufs(bgcol[showbackground]);
+      clearscreen(bgcol[showbackground]);
+      SunCode();
+      break; // Clear all keys.
+    }
+  }
 
   switch (key) {
   case 'a':
