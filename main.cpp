@@ -397,6 +397,674 @@ GLuint base;  // base display list for the font set.
 GLfloat cnt1; // 1st counter used to move text & for coloring.
 GLfloat cnt2; // 2nd counter used to move text & for coloring.
 
+void rotatelight(void) {
+  t = lryx * zt - lryy * xt;
+  xt = lryx * xt + lryy * zt;
+  zt = t;
+
+  t = lrxx * yt - lrxy * zt;
+  zt = lrxx * zt + lrxy * yt;
+  yt = t;
+}
+void rotateview(void) {
+  t = ryx * zt - ryy * xt;
+  xt = ryx * xt + ryy * zt;
+  zt = t;
+
+  t = rxx * yt - rxy * zt;
+  zt = rxx * zt + rxy * yt;
+  yt = t;
+}
+
+void IFSlight(void) {
+  // Rotate to light position:
+  rotatelight();
+
+  // Clip z:
+  if ((zt > -1.0f) && (zt < 1.0f)) {
+
+    // Do normal?:
+    if (donormal) {
+      nxt = dntx + CPOSX;
+      nyt = dnty + CPOSY;
+      nzt = dntz + CPOSZ;
+
+      // Rotate normal z to light position!
+      t = lryx * nzt - lryy * nxt;
+      nxt = lryx * nxt + lryy * nzt;
+      nzt = t;
+
+      t = lrxx * nyt - lrxy * nzt;
+      nzt = lrxx * nzt + lrxy * nyt;
+      nyt = t;
+
+      // Get light normal!
+      x = dtx - ntx;
+      y = dty - nty;
+      z = dtz - ntz;
+
+      t = sqrtl(x * x + y * y + z * z);
+      nzt -= (z / t);
+      nzt = (0.5f + nzt) / 2.0f;
+    }
+    // Do normal.
+
+    // Get distance to light:
+    size = (3.0f + zt) / 2.0f;
+    t = (2.0f - size);
+
+    // Calculate & calibrate luminousity:
+    if (donormal)
+      t = t * t * nzt;
+
+    // Calculate & calibrate luminousity:
+    if (donormal) {
+      if ((logfoliage != USELOGS) && (lightness == 0)) {
+        t = ((2.0f * t) + powl(nzt, 3.0f)) / 3.0f;
+      } else {
+        t = t * t * nzt;
+      }
+    }
+
+    t = (1.0f + t) / 2.0f;
+
+    if (t < minbright)
+      minbright = t;
+    t = t - minbright;
+    if (t > maxbright)
+      maxbright = t;
+    t = t / maxbright;
+
+    t = t * 2.0f;
+    luma = t - 1.0f;
+    if (luma < 0.0f)
+      luma = 0.0f;
+    luma = 1.0f + powl(luma, 8.0f);
+    if (t > 1.0f)
+      t = 1.0f;
+    overexpose = int(255.0 * luma) - 0xFF;
+    if (overexpose < 0)
+      overexpose = 0;
+
+    if (useglow)
+      bright = int(48 * glow + 208 * t) & 0xFF;
+    else
+      bright = int(255 * t) & 0xFF;
+
+    blight = bright >> 1;
+
+    nZ = int((2.0f - size) * (ZDEPTH >> 1)) & 0x7FFF;
+    zt = (lims * imszoom) / size;
+
+    nY = LMIDY + int(yt * zt);
+    nX = LMIDX + int(xt * zt);
+    // Clip y:
+    if ((nY >= 0) && (nY < LHEIGHT)) {
+      // Clip x:
+      if ((nX >= 0) && (nX < LWIDTH)) {
+        if (light[nY][nX] > (nZ + 2)) {
+          // Create shadow.
+          bright = blight;
+          overexpose = 0;
+          luma = 1.0f;
+        } else if (doshadow) {
+          // Update counter for pixels written to shadow map:
+          if ((light[nY][nX] + 2) < nZ)
+            shadowswritten++;
+          light[nY][nX] = nZ;
+        } // Shadow or not.
+      } // clip - X.
+    } // clip - Y.
+  } // clip - Z.
+
+  return;
+} // IFSlight.
+
+void DoMyStuff(void) {
+  // FIXME: is this not handled already by the callback?
+  /*
+  // If someone's tap'n the [Alt] key:
+  if (GetAsyncKeyState(VK_MENU)) {
+    renderactive = false;
+    programMode = 1;
+    paintOnNextFrame = true;
+    return;
+  }
+   */
+
+  // Don't count pixels written for bottom plane:
+  // Comment: The counter is updated inside the plot function.
+  //          This is why I save the value, (to restore later).
+  //          Ok! I could use a flag instaed, but did not =)
+  spixelswritten = pixelswritten;
+  sshadowswritten = shadowswritten;
+
+  // Show background?
+  if (showbackground < 3) {
+    // ************************* //
+    // * Bottom ******** IFS ! * //
+    // ************************* //
+
+    // Turn glow on:
+    useglow = true;
+
+    // Don't write to shadow map:
+    doshadow = false;
+
+    // Don't use normal, (maybe I will fix this later):
+    donormal = false;
+
+    // Iteration loop:
+    for (pti = 6; pti >= 0; pti--) {
+      bi = int(RND * 4);
+
+      btx = (btx - tx[bi]) * sc[bi];
+      bty = (bty - ty[bi]) * sc[bi];
+      btz = (btz - tz[bi]) * sc[bi];
+
+      // Attractor-glow:
+      if (useglow) {
+        t = sqrtl(btx * btx + bty * bty + btz * btz);
+        if (t > blargel) {
+          blargel = t;
+        } // if blargel.
+        t = pow((1.0f - t / blargel), 16.0f);
+        bglow = (bglow + t) / 2.0f;
+      } // Attractor-glow.
+
+      btx += tx[bi];
+      bty += ty[bi];
+      btz += tz[bi];
+
+      // Color:
+      switch (colourmode) {
+
+        // Disabled:
+        //	  		case FUNKYCOLOURS:
+        //					if ( bi & 0x1 )
+        //						pali += ( ( PALSIZE -
+        // pali ) >> 1 ); 					else
+        // pali >>= 1; 					tcolor = lpCols [ pali
+        // ]; 					tRed = 0xFF ^ ( ( tcolor >> 17 )
+        //& 0x7F ); 					tGreen = 0xFF ^ ( (
+        // tcolor >> 9 ) & 0x7F ); 					tBlue =
+        // 0xFF ^ ( ( tcolor >> 1 ) & 0x7F );
+        // bcr = ( ( bcr + tRed ) >> 1 ) & 0xFF;
+        // bcg = ( ( bcg + tGreen ) >> 1 ) & 0xFF;
+        // bcb = ( ( bcb + tBlue ) >> 1 ) & 0xFF; 	    	break; //
+        // FUNKYCOLOURS.
+
+      case NORMALCOLOURS:
+      default:
+        bcr = ((bcr + tcr[bi]) >> 1) & 0xFF;
+        bcg = ((bcg + tcg[bi]) >> 1) & 0xFF;
+        bcb = ((bcb + tcb[bi]) >> 1) & 0xFF;
+        break; // NORMALCOLOURS.
+      } // Switch colourmode.
+
+      // Scale & translate to scene:
+      xt = btx + CPOSX;
+      yt = bty + CPOSY;
+      zt = btz + CPOSZ;
+
+      // it's light:
+      glow = bglow;
+      IFSlight();
+
+      // Scale & translate to scene:
+      xt = btx + CPOSX;
+      yt = bty + CPOSY;
+      zt = btz + CPOSZ;
+
+      // Select colour for pixel:
+      crt = bcr;
+      cgt = bcg;
+      cbt = bcb;
+
+      // Plot pixel to scene:
+      IFSplot();
+
+    } // End of the iteration loop (the bottom-plane).
+  } // if showbackground.
+
+  // ************************//
+  // * Fractal ******* IFS ! //
+  // ************************//
+
+  // FIRST DO IFS FOR FOLIAGE:
+
+  int i;
+
+  if (logfoliage != 1) {
+    // Coordinate:
+    dtx = xbuf[ui];
+    dty = ybuf[ui];
+    dtz = zbuf[ui];
+
+    // Use shadow map?:
+    if (lockshadow)
+      doshadow = false;
+    else
+      doshadow = true;
+
+    // Do not use normal for foliage:
+    donormal = false;
+
+    // Restore iteration counter:
+    pixelswritten = spixelswritten;
+    shadowswritten = sshadowswritten;
+
+    // IFS-snurran!
+    for (pti = 8; pti >= 0; pti--) {
+      itersdone++;
+      di = 4 + int(RND * trees[treeinuse].branches);
+
+      // Translate to scene:
+      xt = dtx + CPOSX;
+      yt = dty + CPOSY;
+      zt = dtz + CPOSZ;
+
+      // Save position:
+      tmpx = xt;
+      tmpy = yt;
+      tmpz = zt;
+
+      // Get luminousity & plot in the light's Z-table:
+      IFSlight();
+
+      // Translate to scene:
+      xt = dtx + CPOSX;
+      yt = dty + CPOSY;
+      zt = dtz + CPOSZ;
+
+      // Select colour for pixel:
+      crt = dcr;
+      cgt = dcg;
+      cbt = dcb;
+
+      // Plot pixel to scene:
+      IFSplot();
+
+      // **** TRANSFORMATIONS **** //
+      // ** Pixel ** //
+      // Rotations:
+
+      i = di - 4;
+      // Do twist?:
+      if (trees[treeinuse].usetwst) {
+        t = branches[treeinuse][i].twistc * dtz -
+            branches[treeinuse][i].twists * dtx;
+        dtx = branches[treeinuse][i].twistc * dtx +
+              branches[treeinuse][i].twists * dtz;
+        dtz = t;
+      } // Do twist?.
+      // Lean:
+      t = branches[treeinuse][i].leanc * dtx -
+          branches[treeinuse][i].leans * dty;
+      dty = branches[treeinuse][i].leanc * dty +
+            branches[treeinuse][i].leans * dtx;
+      dtx = t;
+      // Rotate:
+      t = branches[treeinuse][i].rotatec * dtz -
+          branches[treeinuse][i].rotates * dtx;
+      dtx = branches[treeinuse][i].rotatec * dtx +
+            branches[treeinuse][i].rotates * dtz;
+      dtz = t;
+
+      // Scale!
+      // Global scale?
+      if (trees[treeinuse].glblscl) {
+        dtx *= branches[treeinuse][0].scale;
+        dty *= branches[treeinuse][0].scale;
+        dtz *= branches[treeinuse][0].scale;
+      }
+      // No!, all diffrent:
+      else {
+        dtx *= branches[treeinuse][i].scale;
+        dty *= branches[treeinuse][i].scale;
+        dtz *= branches[treeinuse][i].scale;
+      }
+
+      // Scale by heigth of branch?
+      if (trees[treeinuse].sctrnsl) {
+        dtx *= branches[treeinuse][i].height;
+        dty *= branches[treeinuse][i].height;
+        dtz *= branches[treeinuse][i].height;
+      }
+
+      // Translate!
+      // Use heights?
+      if (trees[treeinuse].usehig)
+        dty += trees[treeinuse].height * branches[treeinuse][i].height;
+      // No!, all at top of stem:
+      else
+        dty += trees[treeinuse].height;
+
+      // Color!
+      dcr = ((dcr + tcr[di]) >> 1) & 0xFF;
+      dcg = ((dcg + tcg[di]) >> 1) & 0xFF;
+      dcb = ((dcb + tcb[di]) >> 1) & 0xFF;
+
+    } // End of the iteration loop (the IFS random walk).
+  } // If logfoliage != 1.
+
+  // Save current coordinate:
+  xbuf[ui] = dtx;
+  ybuf[ui] = dty;
+  zbuf[ui] = dtz;
+
+  // THEN DO L-IFSYS FOR STUB AND STEM:
+
+  if (logfoliage != 2) {
+    switch (useLoCoS) {
+    case USECUBES:
+      t = trees[treeinuse].radius;
+      t += t * float(1 + RNDBOOL) * 0.01f;
+      // Any point on a square:
+      dtx = t;
+      dty = -t + RND * t * 2.0f;
+      dtz = -t + RND * t * 2.0f;
+      // Create surface normal:
+      dntx = dtx - 1.0f;
+      dnty = dty;
+      dntz = dtz;
+      // Square to any side of a cube:
+      if (0 != (tmp = 1 + int(RND * 6)))
+        for (i = 0; i < tmp; i++) {
+          t = -dty;
+          dty = dtz;
+          dtz = dtx;
+          dtx = t;
+          t = -dnty;
+          dnty = dntz;
+          dntz = dntx;
+          dntx = t;
+        }
+      // Translate to start position:
+      dty = dty + trees[treeinuse].height;
+      dnty = dnty + trees[treeinuse].height;
+      break; // Cubes.
+
+    case USESPHEARS:
+      t = trees[treeinuse].radius;
+      t += t * float(1 + RNDBOOL) * 0.01f;
+      // Any point in a cube:
+      dtx = (-1.0f) + RND * 2.0f;
+      dty = (-1.0f) + RND * 2.0f;
+      dtz = (-1.0f) + RND * 2.0f;
+      if (0 < (length = sqrtl(dtx * dtx + dty * dty + dtz * dtz))) {
+        // Normalise to length = 1.0:
+        dtx /= length;
+        dty /= length;
+        dtz /= length;
+        // Create surface normal:
+        dntx = -dtx;
+        dnty = -dty;
+        dntz = -dtz;
+        // Set radius:
+        dtx *= t;
+        dty *= t;
+        dtz *= t;
+      }
+      // Translate to start position:
+      dty = dty + trees[treeinuse].height;
+      dnty = dnty + trees[treeinuse].height;
+      break; // Sphears.
+
+    case USELOGS:
+    default:
+      // Create log!
+      angle = 360.0f * rad * RND;
+      t = RND;
+      x = trees[treeinuse].radius * branches[treeinuse][0].scale;
+      x = trees[treeinuse].radius - x;
+      x = trees[treeinuse].radius - t * x;
+      dtx = sinl(angle) * x;
+      dty = t * trees[treeinuse].height;
+      dtz = cosl(angle) * x;
+      dntx = -sinl(angle);
+      dnty = t * trees[treeinuse].height;
+      dntz = -cosl(angle);
+      break; // Logs.
+    } // Switch useLoCoS.
+
+    // Color:
+    LoCoSPali = (PALSIZE >> 1);
+    switch (colourmode) {
+    case FUNKYCOLOURS:
+      tcolor = lpCols[LoCoSPali];
+      dcr = (tcolor >> 16) & 0xFF;
+      dcg = (tcolor >> 8) & 0xFF;
+      dcb = tcolor & 0xFF;
+      break; // FUNKYCOLOURS.
+    case NORMALCOLOURS:
+    default:
+      dcr = lcr[ilevels];
+      dcg = lcg[ilevels];
+      dcb = lcb[ilevels];
+      break; // NORMALCOLOURS.
+    } // Switch colourmode.
+
+    // Use shadow map?:
+    if (lockshadow)
+      doshadow = false;
+    else
+      doshadow = true;
+
+    // Use normal for stem and branches:
+    donormal = true;
+
+    // Restore iteration counter:
+    pixelswritten = spixelswritten;
+    shadowswritten = sshadowswritten;
+
+    // IFS-snurran!
+    for (pti = (ilevels - 1); pti >= 0; pti--) {
+      itersdone++;
+      di = 4 + int(RND * trees[treeinuse].branches);
+
+      // Translate to scene:
+      xt = dtx + CPOSX;
+      yt = dty + CPOSY;
+      zt = dtz + CPOSZ;
+
+      // Save position:
+      tmpx = xt;
+      tmpy = yt;
+      tmpz = zt;
+
+      // Get luminousity & plot in the light's Z-table:
+      IFSlight();
+
+      // Translate to scene:
+      xt = dtx + CPOSX;
+      yt = dty + CPOSY;
+      zt = dtz + CPOSZ;
+
+      // Select colour for pixel:
+      crt = dcr;
+      cgt = dcg;
+      cbt = dcb;
+
+      // Plot pixel to scene:
+      IFSplot();
+
+      // **** TRANSFORMATIONS **** //
+      // ** Pixel ** //
+      // Rotations:
+
+      i = di - 4;
+      // Do twist?:
+      if (trees[treeinuse].usetwst) {
+        t = branches[treeinuse][i].twistc * dtz -
+            branches[treeinuse][i].twists * dtx;
+        dtx = branches[treeinuse][i].twistc * dtx +
+              branches[treeinuse][i].twists * dtz;
+        dtz = t;
+      } // Do twist?.
+      // Lean:
+      t = branches[treeinuse][i].leanc * dtx -
+          branches[treeinuse][i].leans * dty;
+      dty = branches[treeinuse][i].leanc * dty +
+            branches[treeinuse][i].leans * dtx;
+      dtx = t;
+      // Rotate:
+      t = branches[treeinuse][i].rotatec * dtz -
+          branches[treeinuse][i].rotates * dtx;
+      dtx = branches[treeinuse][i].rotatec * dtx +
+            branches[treeinuse][i].rotates * dtz;
+      dtz = t;
+
+      // Scale!
+      // Global scale?
+      if (trees[treeinuse].glblscl) {
+        dtx *= branches[treeinuse][0].scale;
+        dty *= branches[treeinuse][0].scale;
+        dtz *= branches[treeinuse][0].scale;
+      }
+      // No!, all diffrent:
+      else {
+        dtx *= branches[treeinuse][i].scale;
+        dty *= branches[treeinuse][i].scale;
+        dtz *= branches[treeinuse][i].scale;
+      }
+
+      // Scale by heigth of branch?
+      if (trees[treeinuse].sctrnsl) {
+        dtx *= branches[treeinuse][i].height;
+        dty *= branches[treeinuse][i].height;
+        dtz *= branches[treeinuse][i].height;
+      }
+
+      // Translate!
+      // Use heights?
+      if (trees[treeinuse].usehig)
+        dty += trees[treeinuse].height * branches[treeinuse][i].height;
+      // No!, all at top of stem:
+      else
+        dty += trees[treeinuse].height;
+
+      // ** Pixel normal ** //
+      // Rotations:
+
+      // Do twist?:
+      if (trees[treeinuse].usetwst) {
+        t = branches[treeinuse][i].twistc * dntz -
+            branches[treeinuse][i].twists * dntx;
+        dntx = branches[treeinuse][i].twistc * dntx +
+               branches[treeinuse][i].twists * dntz;
+        dntz = t;
+      } // Do twist?.
+      // Lean:
+      t = branches[treeinuse][i].leanc * dntx -
+          branches[treeinuse][i].leans * dnty;
+      dnty = branches[treeinuse][i].leanc * dnty +
+             branches[treeinuse][i].leans * dntx;
+      dntx = t;
+      // Rotate:
+      t = branches[treeinuse][i].rotatec * dntz -
+          branches[treeinuse][i].rotates * dntx;
+      dntx = branches[treeinuse][i].rotatec * dntx +
+             branches[treeinuse][i].rotates * dntz;
+      dntz = t;
+
+      // Scale!
+      // Global scale?
+      if (trees[treeinuse].glblscl) {
+        dntx *= branches[treeinuse][0].scale;
+        dnty *= branches[treeinuse][0].scale;
+        dntz *= branches[treeinuse][0].scale;
+      }
+      // No!, all diffrent:
+      else {
+        dntx *= branches[treeinuse][i].scale;
+        dnty *= branches[treeinuse][i].scale;
+        dntz *= branches[treeinuse][i].scale;
+      }
+
+      // Scale by heigth of branch?
+      if (trees[treeinuse].sctrnsl) {
+        dntx *= branches[treeinuse][i].height;
+        dnty *= branches[treeinuse][i].height;
+        dntz *= branches[treeinuse][i].height;
+      }
+
+      // Translate!
+      // Use heights?
+      if (trees[treeinuse].usehig)
+        dnty += trees[treeinuse].height * branches[treeinuse][i].height;
+      // No!, all at top of stem:
+      else
+        dnty += trees[treeinuse].height;
+
+      // Re-normalize!
+      dntx -= dtx;
+      dnty -= dty;
+      dntz -= dtz;
+      t = sqrtl(dntx * dntx + dnty * dnty + dntz * dntz);
+      dntx /= t;
+      dnty /= t;
+      dntz /= t;
+
+      // Color:
+      switch (colourmode) {
+      case FUNKYCOLOURS:
+
+        // Diffrent modes for diffrent
+        // number of branches:
+        switch (trees[treeinuse].branches - 1) {
+        case 1:
+          if (i & 0x1)
+            LoCoSPali += ((PALSIZE - LoCoSPali) >> 1);
+          else
+            LoCoSPali >>= 1;
+          break;
+
+        case 2:
+        case 3:
+          if (i & 0x1)
+            LoCoSPali += ((PALSIZE - LoCoSPali) >> 1);
+          else
+            LoCoSPali >>= 1;
+          tmp = (PALSIZE >> 1) * ((i >> 1) & 0x01);
+          LoCoSPali = tmp + (LoCoSPali >> 1);
+          break;
+
+        case 7:
+        default:
+          if (i & 0x1)
+            LoCoSPali += ((PALSIZE - LoCoSPali) >> 1);
+          else
+            LoCoSPali >>= 1;
+
+          tmp = (PALSIZE >> 2) * ((i >> 1) & 0x03);
+          LoCoSPali = tmp + (LoCoSPali >> 2);
+          break;
+        } // switch numbranch.
+
+        // Get selected colour from palette:
+        tcolor = lpCols[LoCoSPali];
+        tRed = (tcolor >> 16) & 0xFF;
+        tGreen = (tcolor >> 8) & 0xFF;
+        tBlue = tcolor & 0xFF;
+        dcr = ((dcr + (tRed * 3)) >> 2) & 0xFF;
+        dcg = ((dcg + (tGreen * 3)) >> 2) & 0xFF;
+        dcb = ((dcb + (tBlue * 3)) >> 2) & 0xFF;
+
+        break; // FUNKYCOLOURS.
+
+      case NORMALCOLOURS:
+      default:
+        dcr = ((dcr + (lcr[pti] * 3)) >> 2) & 0xFF;
+        dcg = ((dcg + (lcg[pti] * 3)) >> 2) & 0xFF;
+        dcb = ((dcb + (lcb[pti] * 3)) >> 2) & 0xFF;
+        break; // NORMALCOLOURS.
+      } // Switch colourmode.
+
+    } // End of the iteration loop (the tree L-IFS).
+  } // If logfoliage != 2.
+}
+
 void drawAll() {
   // printf("drawing\n");
 
@@ -1258,6 +1926,112 @@ void setColour(long c) {
   glColor3ub(r, g, b);
 }
 
+void IFSplot(void) {
+  // Rotate to angle of view:
+  rotateview();
+
+  // Clip z:
+  glBegin(GL_POINTS);
+  if ((zt > -1.0f) && (zt < 1.0f)) {
+    size = (3.0f + zt) / 2.0f;
+    nZ = int((2.0f - size) * (ZDEPTH >> 1)) & 0x7FFF;
+    zt = (ims * imszoom) / size;
+
+    nY = BMIDY + int(yt * zt);
+    nX = BMIDX + int(xt * zt);
+    // Clip y:
+    if ((nY >= 0) && (nY < BHEIGHT)) {
+      // Clip x:
+      if ((nX >= 0) && (nX < BWIDTH)) {
+        // Plot if Point closer to viewer than
+        // the previous at the position:
+        if (bpict[nY][nX] < nZ) {
+          // Write new depth to z-buffer:
+          bpict[nY][nX] = nZ;
+
+          // Update pixel counter:
+          pixelswritten++;
+
+          // Brighter than average?
+          if (overexpose) {
+            crt = int((crt + overexpose) / luma);
+            cgt = int((cgt + overexpose) / luma);
+            cbt = int((cbt + overexpose) / luma);
+          } // Overexpose.
+
+          // Whiter shade of pale?:
+          if (whitershade) {
+            // Cold in varm:
+            if (whitershade == 1) {
+              crt = (((crt * 3) + bright) >> 2) & 0xFF;
+              cgt = (((cgt << 1) + bright) / 3) & 0xFF;
+              cbt = ((cbt + bright) >> 1) & 0xFF;
+            }
+            // Varm in cold:
+            else {
+              crt = ((crt + bright) >> 1) & 0xFF;
+              cgt = (((cgt << 1) + bright) / 3) & 0xFF;
+              cbt = (((cbt * 3) + bright) >> 2) & 0xFF;
+            }
+          } // Whiter shade of pale.
+
+          crt = ((crt * bright) >> 8) & 0xFF;
+          cgt = ((cgt * bright) >> 8) & 0xFF;
+          cbt = ((cbt * bright) >> 8) & 0xFF;
+          tcolor = ((crt << 16) + (cgt << 8) + cbt) & 0xFFFFFF;
+          pict[nY][nX] = tcolor;
+
+          // ******************************
+          // Anti anlize from pixel-buffer:
+          // ******************************
+          // 2x2 grid:
+          nY = nY & 0xFFFE;
+          nX = nX & 0xFFFE;
+
+          // Reset colours:
+          ncols = 4;
+          tRed = 0x00;
+          tBlue = 0x00;
+          tGreen = 0x00;
+
+          // 2x2 pixels to 1 pixel:
+          for (int yi = 0; yi < 2; yi++) {
+            nYt = nY + yi;
+            if ((nYt >= 0) && (nYt < BHEIGHT)) {
+              for (int xi = 0; xi < 2; xi++) {
+                nXt = nX + xi;
+                if ((nXt >= 0) && (nXt < BWIDTH)) {
+                  tcolor = pict[nYt][nXt];
+                  tRed += (tcolor >> 16) & 0xFF;
+                  tGreen += (tcolor >> 8) & 0xFF;
+                  tBlue += tcolor & 0xFF;
+                } // Clip x.
+              } // for xi.
+            } // Clip y.
+          } // for yi.
+          tRed = (tRed / ncols) & 0xFF;
+          tGreen = (tGreen / ncols) & 0xFF;
+          tBlue = (tBlue / ncols) & 0xFF;
+          // End anti anilize.
+
+          // Convert 8-bit red, green & blue to 32-bit xRGB:
+          tcolor = ((tRed << 16) + (tGreen << 8) + tBlue) & 0x00FFFFFF;
+
+          // ***********************
+          // Write to screen buffer:
+          // ***********************
+          // 2x2 grid to 1x1 dito:
+          nY = nY >> 1;
+          nX = nX >> 1;
+          setColour(tcolor);
+          glVertex2i(nX, nY);
+        } // Z-plot view.
+      } // clip - X.
+    } // clip - Y.
+  } // clip - Z.
+  glEnd();
+}
+
 void textline(int curposx, int curposy, char *stringdata, int fontindex,
               long textcolor) {
   // FIXME: support setting font size
@@ -1986,6 +2760,12 @@ void DrawGLScene() {
     }
     drawAll();
     paintOnNextFrame = false;
+  }
+
+  // if render screen is up then iterate:
+  if ((programMode == 0) && renderactive) {
+    DoMyStuff();
+    drawAll();
   }
 }
 
