@@ -357,8 +357,6 @@ void CreatePalette(void);
 void DoMyStuff(void);
 void drawBox(void);
 void drawBoxi(void);
-void drawLine(void);
-void drawMulticolLine(void);
 static void finiObjects(void);
 double getlevel(double xmin, double xmax, double ystart, double yend, double x,
                 double Q);
@@ -2465,102 +2463,6 @@ void ShowPalette(int mode) {
   default:
     break;
   }
-  glEnd();
-}
-
-void drawLine(void) {
-  long double llen, ldx, ldy;
-  long int lpx, lpy, lnum;
-
-  // clip to ( -4 / 3 ) < x < ( 4 / 3 ) / -1 < y < 1
-  if (fabsl(lxs) > RATIO) {
-    temp = RATIO / fabsl(lxs);
-    lxs = (fabsl(lxs) * temp) * SGN(lxs);
-    lys = (fabsl(lys) * temp) * SGN(lys);
-  }
-  if (fabsl(lxe) > RATIO) {
-    temp = RATIO / fabsl(lxe);
-    lxe = (fabsl(lxe) * temp) * SGN(lxe);
-    lye = (fabsl(lye) * temp) * SGN(lye);
-  }
-  if (fabsl(lys) > 1.0f) {
-    temp = 1.0f / fabsl(lys);
-    lxs = (fabsl(lxs) * temp) * SGN(lxs);
-    lys = (fabsl(lys) * temp) * SGN(lys);
-  }
-  if (fabsl(lye) > 1.0f) {
-    temp = 1.0f / fabsl(lye);
-    lxe = (fabsl(lxe) * temp) * SGN(lxe);
-    lye = (fabsl(lye) * temp) * SGN(lye);
-  }
-  // clip ends.
-
-  ldx = lxe - lxs;
-  ldy = lye - lys;
-  llen = sqrtl(ldx * ldx + ldy * ldy);
-  ldx = ldx / llen;
-  ldy = -ldy / llen;
-  lxs = lxs * MIDX;
-  lys = -lys * MIDY;
-  lnum = int(llen * MIDY) + 1;
-
-  glBegin(GL_POINTS);
-  setColour(lcol);
-  do {
-    lpx = int(MIDX + lxs);
-    lpy = int(MIDY + lys);
-    glVertex2i(lpx, lpy);
-    lxs += ldx;
-    lys += ldy;
-  } while (--lnum);
-  glEnd();
-}
-
-void drawMulticolLine(void) {
-  long double llen, ldx, ldy;
-  long int lpx, lpy, lnum;
-
-  // clip to ( -4 / 3 ) < x < ( 4 / 3 ) / -1 < y < 1
-  if (fabsl(lxs) > RATIO) {
-    temp = RATIO / fabsl(lxs);
-    lxs = (fabsl(lxs) * temp) * SGN(lxs);
-    lys = (fabsl(lys) * temp) * SGN(lys);
-  }
-  if (fabsl(lxe) > RATIO) {
-    temp = RATIO / fabsl(lxe);
-    lxe = (fabsl(lxe) * temp) * SGN(lxe);
-    lye = (fabsl(lye) * temp) * SGN(lye);
-  }
-  if (fabsl(lys) > 1.0f) {
-    temp = 1.0f / fabsl(lys);
-    lxs = (fabsl(lxs) * temp) * SGN(lxs);
-    lys = (fabsl(lys) * temp) * SGN(lys);
-  }
-  if (fabsl(lye) > 1.0f) {
-    temp = 1.0f / fabsl(lye);
-    lxe = (fabsl(lxe) * temp) * SGN(lxe);
-    lye = (fabsl(lye) * temp) * SGN(lye);
-  }
-  // clip ends.
-
-  ldx = lxe - lxs;
-  ldy = lye - lys;
-  llen = sqrtl(ldx * ldx + ldy * ldy);
-  ldx = ldx / llen;
-  ldy = -ldy / llen;
-  lxs = lxs * MIDY;
-  lys = -lys * MIDY;
-  lnum = int(llen * MIDY) + 1;
-
-  glBegin(GL_POINTS);
-  do {
-    lpx = int(MIDX + lxs);
-    lpy = int(MIDY + lys);
-    setColour(lpCols[lnum & (PALSIZE - 1)]);
-    glVertex2i(lpx, lpy);
-    lxs += ldx;
-    lys += ldy;
-  } while (--lnum);
   glEnd();
 }
 
