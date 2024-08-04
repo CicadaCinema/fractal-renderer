@@ -418,6 +418,482 @@ void drawAll() {
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 }
 
+void initiateIFS(void) {
+  // Load preset trees:
+  loadtrees();
+
+  // Create a fractal set:
+  newsetup();
+
+  // Also create a colour-palette:
+  CreatePalette();
+
+  // Background is visible:
+  showbackground = 0;
+
+  // Clear buffers:
+  clearallbufs(bgcol[showbackground]);
+}
+
+int opensource(const char *fname) {
+  if (NULL == (infile = fopen(fname, "r")))
+    return (WASERROR);
+
+  if (0 == (filesize = fread(tree, sizeof(char), sizeof(tree[0]) * 31, infile)))
+    return (WASERROR);
+
+  return (WASNOERROR);
+}
+
+void loadtrees(void) {
+
+#define USESETUPS
+#if defined USESETUPS
+
+  numbranch = 2;
+  int i;
+  int j;
+  t = sqrtl(1.0f / 2.0f);
+  for (j = 0; j < NUMTREES; j++) {
+    // Preset default branches for one tree:
+    angle = 45.0f * rad;
+    for (i = 0; i < 8; i++) {
+      branches[j][i].height = 0.5f;
+      branches[j][i].scale = t;
+      branches[j][i].leanc = cosl(angle);
+      branches[j][i].leans = sinl(angle);
+      branches[j][i].rotatec = cosl(angle * 3.0f + angle * i * 3.0f);
+      branches[j][i].rotates = sinl(angle * 3.0f + angle * i * 3.0f);
+      branches[j][i].twistc = cosl(angle);
+      branches[j][i].twists = sinl(angle);
+      angle = -angle;
+    }
+    // Preset default trees:
+    strcpy(trees[j].name, "Default tree");
+    trees[j].branches = numbranch;
+    trees[j].usehig = false;
+    trees[j].glblscl = false;
+    trees[j].sctrnsl = false;
+    trees[j].usetwst = false;
+    trees[j].radius = 0.011f;
+    trees[j].height = -0.235f;
+    trees[j].stem = branches[i][0];
+    trees[j].branch_1 = branches[j][1];
+    trees[j].branch_2 = branches[j][2];
+    trees[j].branch_3 = branches[j][3];
+    trees[j].branch_4 = branches[j][4];
+    trees[j].branch_5 = branches[j][5];
+    trees[j].branch_6 = branches[j][6];
+    trees[j].branch_7 = branches[j][7];
+  }
+
+  numbranch = 3;
+  i = 0;
+  strcpy(trees[i].name, "Sierpinski Tree");
+  trees[i].branches = numbranch;
+  trees[i].usehig = false;
+  trees[i].glblscl = true;
+  trees[i].sctrnsl = false;
+  trees[i].usetwst = false;
+  trees[i].radius = 0.005f;
+  trees[i].height = -0.35f;
+  trees[i].stem = branches[0][0];
+  trees[i].branch_1 = branches[i][1];
+  trees[i].branch_2 = branches[i][2];
+  trees[i].branch_3 = branches[i][3];
+  trees[i].branch_4 = branches[i][4];
+  trees[i].branch_5 = branches[i][5];
+  trees[i].branch_6 = branches[i][6];
+  trees[i].branch_7 = branches[i][7];
+
+  t = (1.0f / 2.0f);
+  branches[i][0].height = 1.0f;
+  branches[i][0].scale = t;
+  angle = 0.0f * rad;
+  branches[i][0].leanc = cosl(angle);
+  branches[i][0].leans = sinl(angle);
+  branches[i][0].rotatec = cosl(angle);
+  branches[i][0].rotates = sinl(angle);
+  angle = 90.0f * rad;
+  branches[i][0].twistc = cosl(angle);
+  branches[i][0].twists = sinl(angle);
+
+  branches[i][1].height = 0.5f;
+  angle = 120.0f * rad;
+  branches[i][1].leanc = cosl(angle);
+  branches[i][1].leans = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][1].rotatec = cosl(angle);
+  branches[i][1].rotates = sinl(angle);
+
+  branches[i][2].height = 0.5f;
+  angle = 120.0f * rad;
+  branches[i][2].leanc = cosl(angle);
+  branches[i][2].leans = sinl(angle);
+  angle = 180.0f * rad;
+  branches[i][2].rotatec = cosl(angle);
+  branches[i][2].rotates = sinl(angle);
+
+  numbranch = 4;
+  i = 1;
+  strcpy(trees[i].name, "Sierps tetra");
+  trees[i].branches = numbranch;
+  trees[i].usehig = false;
+  trees[i].glblscl = true;
+  trees[i].sctrnsl = false;
+  trees[i].usetwst = false;
+  trees[i].radius = 0.005f;
+  trees[i].height = -0.35f;
+  trees[i].stem = branches[0][0];
+  trees[i].branch_1 = branches[i][1];
+  trees[i].branch_2 = branches[i][2];
+  trees[i].branch_3 = branches[i][3];
+  trees[i].branch_4 = branches[i][4];
+  trees[i].branch_5 = branches[i][5];
+  trees[i].branch_6 = branches[i][6];
+  trees[i].branch_7 = branches[i][7];
+
+  t = (1.0f / 2.0f);
+  branches[i][0].height = 1.0f;
+  branches[i][0].scale = t;
+  angle = 0.0f * rad;
+  branches[i][0].leanc = cosl(angle);
+  branches[i][0].leans = sinl(angle);
+  branches[i][0].rotatec = cosl(angle);
+  branches[i][0].rotates = sinl(angle);
+  angle = 90.0f * rad;
+  branches[i][0].twistc = cosl(angle);
+  branches[i][0].twists = sinl(angle);
+
+  branches[i][1].height = 0.5f;
+  angle = 110.0f * rad;
+  branches[i][1].leanc = cosl(angle);
+  branches[i][1].leans = sinl(angle);
+  angle = 60.0f * rad;
+  branches[i][1].rotatec = cosl(angle);
+  branches[i][1].rotates = sinl(angle);
+
+  branches[i][2].height = 0.5f;
+  angle = 110.0f * rad;
+  branches[i][2].leanc = cosl(angle);
+  branches[i][2].leans = sinl(angle);
+  angle = 180.0f * rad;
+  branches[i][2].rotatec = cosl(angle);
+  branches[i][2].rotates = sinl(angle);
+
+  branches[i][3].height = 0.5f;
+  angle = 110.0f * rad;
+  branches[i][3].leanc = cosl(angle);
+  branches[i][3].leans = sinl(angle);
+  angle = 300.0f * rad;
+  branches[i][3].rotatec = cosl(angle);
+  branches[i][3].rotates = sinl(angle);
+
+  numbranch = 2;
+  i = 2;
+  strcpy(trees[i].name, "Lévy curve Tree");
+  trees[i].branches = numbranch;
+  trees[i].usehig = false;
+  trees[i].glblscl = true;
+  trees[i].sctrnsl = false;
+  trees[i].usetwst = false;
+  trees[i].radius = 0.015f;
+  trees[i].height = -0.23f;
+  trees[i].stem = branches[1][0];
+  trees[i].branch_1 = branches[i][1];
+  trees[i].branch_2 = branches[i][2];
+  trees[i].branch_3 = branches[i][3];
+  trees[i].branch_4 = branches[i][4];
+  trees[i].branch_5 = branches[i][5];
+  trees[i].branch_6 = branches[i][6];
+  trees[i].branch_7 = branches[i][7];
+
+  t = sqrtl(1.0f / 2.0f);
+  branches[i][0].height = 1.0f;
+  branches[i][0].scale = t;
+  angle = 45.0f * rad;
+  branches[i][0].leanc = cosl(angle);
+  branches[i][0].leans = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][0].rotatec = cosl(angle);
+  branches[i][0].rotates = sinl(angle);
+
+  angle = 45.0f * rad;
+  branches[i][1].leanc = cosl(angle);
+  branches[i][1].leans = sinl(angle);
+  angle = 180.0f * rad;
+  branches[i][1].rotatec = cosl(angle);
+  branches[i][1].rotates = sinl(angle);
+
+  numbranch = 2;
+  i = 3;
+  strcpy(trees[i].name, "Y-Tree!");
+  trees[i].branches = numbranch;
+  trees[i].usehig = false;
+  trees[i].glblscl = true;
+  trees[i].sctrnsl = false;
+  trees[i].usetwst = true;
+  trees[i].radius = 0.013f;
+  trees[i].height = -0.25f;
+  trees[i].stem = branches[2][0];
+  trees[i].branch_1 = branches[i][1];
+  trees[i].branch_2 = branches[i][2];
+  trees[i].branch_3 = branches[i][3];
+  trees[i].branch_4 = branches[i][4];
+  trees[i].branch_5 = branches[i][5];
+  trees[i].branch_6 = branches[i][6];
+  trees[i].branch_7 = branches[i][7];
+
+  t = sqrtl(1.0f / 2.0f);
+  branches[i][0].height = 1.0f;
+  branches[i][0].scale = t;
+  angle = 45.0f * rad;
+  branches[i][0].leanc = cosl(angle);
+  branches[i][0].leans = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][0].rotatec = cosl(angle);
+  branches[i][0].rotates = sinl(angle);
+  angle = 90.0f * rad;
+  branches[i][0].twistc = cosl(angle);
+  branches[i][0].twists = sinl(angle);
+
+  angle = -45.0f * rad;
+  branches[i][1].leanc = cosl(angle);
+  branches[i][1].leans = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][1].rotatec = cosl(angle);
+  branches[i][1].rotates = sinl(angle);
+  angle = -90.0f * rad;
+  branches[i][1].twistc = cosl(angle);
+  branches[i][1].twists = sinl(angle);
+
+  numbranch = 4;
+  i = 4;
+  strcpy(trees[i].name, "Paratrooper");
+  trees[i].branches = numbranch;
+  trees[i].usehig = false;
+  trees[i].glblscl = true;
+  trees[i].sctrnsl = false;
+  trees[i].usetwst = false;
+  trees[i].radius = 0.010f;
+  trees[i].height = -0.375f;
+  trees[i].stem = branches[2][0];
+  trees[i].branch_1 = branches[i][1];
+  trees[i].branch_2 = branches[i][2];
+  trees[i].branch_3 = branches[i][3];
+  trees[i].branch_4 = branches[i][4];
+  trees[i].branch_5 = branches[i][5];
+  trees[i].branch_6 = branches[i][6];
+  trees[i].branch_7 = branches[i][7];
+
+  t = (1.0f / 2.0f);
+  branches[i][0].height = 1.0f;
+  branches[i][0].scale = t;
+  angle = 45.0f * rad;
+  branches[i][0].leanc = cosl(angle);
+  branches[i][0].leans = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][0].rotatec = cosl(angle);
+  branches[i][0].rotates = sinl(angle);
+
+  angle = 45.0f * rad;
+  branches[i][1].leanc = cosl(angle);
+  branches[i][1].leans = sinl(angle);
+  angle = 90.0f * rad;
+  branches[i][1].rotatec = cosl(angle);
+  branches[i][1].rotates = sinl(angle);
+
+  angle = 45.0f * rad;
+  branches[i][2].leanc = cosl(angle);
+  branches[i][2].leans = sinl(angle);
+  angle = 180.0f * rad;
+  branches[i][2].rotatec = cosl(angle);
+  branches[i][2].rotates = sinl(angle);
+
+  angle = 45.0f * rad;
+  branches[i][3].leanc = cosl(angle);
+  branches[i][3].leans = sinl(angle);
+  angle = 270.0f * rad;
+  branches[i][3].rotatec = cosl(angle);
+  branches[i][3].rotates = sinl(angle);
+
+  numbranch = 5;
+  i = 5;
+  strcpy(trees[i].name, "Twister spruce");
+  trees[i].branches = numbranch;
+  trees[i].usehig = false;
+  trees[i].glblscl = false;
+  trees[i].sctrnsl = false;
+  trees[i].usetwst = true;
+  trees[i].radius = 0.005f;
+  trees[i].height = -0.26f;
+  trees[i].stem = branches[2][0];
+  trees[i].branch_1 = branches[i][1];
+  trees[i].branch_2 = branches[i][2];
+  trees[i].branch_3 = branches[i][3];
+  trees[i].branch_4 = branches[i][4];
+  trees[i].branch_5 = branches[i][5];
+  trees[i].branch_6 = branches[i][6];
+  trees[i].branch_7 = branches[i][7];
+
+  branches[i][0].height = 1.0f;
+  branches[i][0].scale = (phi - 1.0f);
+  angle = 0.0f * rad;
+  branches[i][0].leanc = cosl(angle);
+  branches[i][0].leans = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][0].rotatec = cosl(angle);
+  branches[i][0].rotates = sinl(angle);
+  angle = 22.5f * rad;
+  branches[i][0].twistc = cosl(angle);
+  branches[i][0].twists = sinl(angle);
+
+  t = (2.0f - phi);
+  branches[i][1].height = 0.5f;
+  branches[i][1].scale = t;
+  angle = 90.0f * rad;
+  branches[i][1].leanc = cosl(angle);
+  branches[i][1].leans = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][1].rotatec = cosl(angle);
+  branches[i][1].rotates = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][1].twistc = cosl(angle);
+  branches[i][1].twists = sinl(angle);
+
+  branches[i][2].height = 0.5f;
+  branches[i][2].scale = t;
+  angle = 90.0f * rad;
+  branches[i][2].leanc = cosl(angle);
+  branches[i][2].leans = sinl(angle);
+  angle = 90.0f * rad;
+  branches[i][2].rotatec = cosl(angle);
+  branches[i][2].rotates = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][2].twistc = cosl(angle);
+  branches[i][2].twists = sinl(angle);
+
+  branches[i][3].height = 0.5f;
+  branches[i][3].scale = t;
+  angle = 90.0f * rad;
+  branches[i][3].leanc = cosl(angle);
+  branches[i][3].leans = sinl(angle);
+  angle = 180.0f * rad;
+  branches[i][3].rotatec = cosl(angle);
+  branches[i][3].rotates = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][3].twistc = cosl(angle);
+  branches[i][3].twists = sinl(angle);
+
+  branches[i][4].height = 0.5f;
+  branches[i][4].scale = t;
+  angle = 90.0f * rad;
+  branches[i][4].leanc = cosl(angle);
+  branches[i][4].leans = sinl(angle);
+  angle = 270.0f * rad;
+  branches[i][4].rotatec = cosl(angle);
+  branches[i][4].rotates = sinl(angle);
+  angle = 0.0f * rad;
+  branches[i][4].twistc = cosl(angle);
+  branches[i][4].twists = sinl(angle);
+
+#endif // USESETUPS
+
+  if (WASERROR == opensource("Trees.IFS")) {
+    printf("could not load trees\n");
+    exit(1);
+  }
+
+  // Load the preset trees and
+  // branches from file-buffer:
+  loadtree();
+}
+
+void loadtree(void) {
+  for (int i = 0; i < 31; i++) {
+    memcpy(trees[i].name, tree[i].name, 15);
+    trees[i].name[15] = 0;
+    trees[i].branches = tree[i].branches;
+    trees[i].usehig = tree[i].usehig;
+    trees[i].glblscl = tree[i].glblscl;
+    trees[i].sctrnsl = tree[i].sctrnsl;
+    trees[i].usetwst = tree[i].usetwst;
+    trees[i].radius = tree[i].radius;
+    trees[i].height = tree[i].height;
+    branches[i][0].height = tree[i].height0;
+    branches[i][0].scale = tree[i].scale0;
+    branches[i][0].leanc = tree[i].leanc0;
+    branches[i][0].leans = tree[i].leans0;
+    branches[i][0].rotatec = tree[i].rotatec0;
+    branches[i][0].rotates = tree[i].rotates0;
+    branches[i][0].twistc = tree[i].twistc0;
+    branches[i][0].twists = tree[i].twists0;
+
+    branches[i][1].height = tree[i].height1;
+    branches[i][1].scale = tree[i].scale1;
+    branches[i][1].leanc = tree[i].leanc1;
+    branches[i][1].leans = tree[i].leans1;
+    branches[i][1].rotatec = tree[i].rotatec1;
+    branches[i][1].rotates = tree[i].rotates1;
+    branches[i][1].twistc = tree[i].twistc1;
+    branches[i][1].twists = tree[i].twists1;
+
+    branches[i][2].height = tree[i].height2;
+    branches[i][2].scale = tree[i].scale2;
+    branches[i][2].leanc = tree[i].leanc2;
+    branches[i][2].leans = tree[i].leans2;
+    branches[i][2].rotatec = tree[i].rotatec2;
+    branches[i][2].rotates = tree[i].rotates2;
+    branches[i][2].twistc = tree[i].twistc2;
+    branches[i][2].twists = tree[i].twists2;
+
+    branches[i][3].height = tree[i].height3;
+    branches[i][3].scale = tree[i].scale3;
+    branches[i][3].leanc = tree[i].leanc3;
+    branches[i][3].leans = tree[i].leans3;
+    branches[i][3].rotatec = tree[i].rotatec3;
+    branches[i][3].rotates = tree[i].rotates3;
+    branches[i][3].twistc = tree[i].twistc3;
+    branches[i][3].twists = tree[i].twists3;
+
+    branches[i][4].height = tree[i].height4;
+    branches[i][4].scale = tree[i].scale4;
+    branches[i][4].leanc = tree[i].leanc4;
+    branches[i][4].leans = tree[i].leans4;
+    branches[i][4].rotatec = tree[i].rotatec4;
+    branches[i][4].rotates = tree[i].rotates4;
+    branches[i][4].twistc = tree[i].twistc4;
+    branches[i][4].twists = tree[i].twists4;
+
+    branches[i][5].height = tree[i].height5;
+    branches[i][5].scale = tree[i].scale5;
+    branches[i][5].leanc = tree[i].leanc5;
+    branches[i][5].leans = tree[i].leans5;
+    branches[i][5].rotatec = tree[i].rotatec5;
+    branches[i][5].rotates = tree[i].rotates5;
+    branches[i][5].twistc = tree[i].twistc5;
+    branches[i][5].twists = tree[i].twists5;
+
+    branches[i][6].height = tree[i].height6;
+    branches[i][6].scale = tree[i].scale6;
+    branches[i][6].leanc = tree[i].leanc6;
+    branches[i][6].leans = tree[i].leans6;
+    branches[i][6].rotatec = tree[i].rotatec6;
+    branches[i][6].rotates = tree[i].rotates6;
+    branches[i][6].twistc = tree[i].twistc6;
+    branches[i][6].twists = tree[i].twists6;
+
+    branches[i][7].height = tree[i].height7;
+    branches[i][7].scale = tree[i].scale7;
+    branches[i][7].leanc = tree[i].leanc7;
+    branches[i][7].leans = tree[i].leans7;
+    branches[i][7].rotatec = tree[i].rotatec7;
+    branches[i][7].rotates = tree[i].rotates7;
+    branches[i][7].twistc = tree[i].twistc7;
+    branches[i][7].twists = tree[i].twists7;
+  } // forlooping
+}
+
 GLvoid BuildFont(GLvoid) {
   Display *dpy;
   XFontStruct *fontInfo; // storage for our font.
@@ -2166,6 +2642,8 @@ int main(int argc, char **argv) {
   glutKeyboardFunc(&keyDownCallback);
   glutSpecialUpFunc(&keyUpCallbackSpecial);
   glutSpecialFunc(&keyDownCallbackSpecial);
+
+  initiateIFS();
 
   /* Initialize our window. */
   InitGL(WIDTH, HEIGHT);
