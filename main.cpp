@@ -36,6 +36,9 @@
 /* The number of our GLUT window */
 int window;
 
+// We will always render to this framebuffer.
+unsigned int framebuffer;
+
 // A number of "always useful" constants:
 const double pi = 3.141592654f; // Precission enough?
 
@@ -393,6 +396,27 @@ void writecols(void);
 GLuint base;  // base display list for the font set.
 GLfloat cnt1; // 1st counter used to move text & for coloring.
 GLfloat cnt2; // 2nd counter used to move text & for coloring.
+
+void drawAll() {
+  // printf("drawing\n");
+
+  // Read from my framebuffer, and write to the default framebuffer.
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+  // Copy the colour data.
+  glBlitFramebuffer(0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT,
+                    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
+                        GL_STENCIL_BUFFER_BIT,
+                    GL_NEAREST);
+
+  // Show what's on the default framebuffer.
+  glutSwapBuffers();
+
+  // Now bind my framebuffer again so that subsequent operations are drawn
+  // there.
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+}
 
 GLvoid BuildFont(GLvoid) {
   Display *dpy;
@@ -1459,9 +1483,7 @@ void ReSizeGLScene(int Width, int Height) {
 
 /* The main drawing function. */
 void DrawGLScene() {
-  glClear(GL_DEPTH_BUFFER_BIT |
-          GL_COLOR_BUFFER_BIT); // Clear The Screen And The Depth Buffer
-  glLoadIdentity();             // Reset The View
+  glLoadIdentity(); // Reset The View
 
   if (paintOnNextFrame) {
     switch (programMode) {
@@ -1486,7 +1508,7 @@ void DrawGLScene() {
       manual();
       break;
     }
-    glutSwapBuffers();
+    drawAll();
     paintOnNextFrame = false;
   }
 }
@@ -1649,7 +1671,7 @@ void keyDownCallbackSpecial(int key, int x, int y) {
   }
 
   if (valid_keypress) {
-    glutSwapBuffers();
+    drawAll();
   }
 }
 
@@ -1682,7 +1704,7 @@ void keyUpCallbackSpecial(int key, int x, int y) {
     }
 
     if (valid_keypress) {
-      glutSwapBuffers();
+      drawAll();
     }
   }
 }
@@ -2072,7 +2094,7 @@ void keyDownCallback(unsigned char key, int x, int y) {
   }
 
   if (valid_keypress) {
-    glutSwapBuffers();
+    drawAll();
   }
 }
 
@@ -2100,7 +2122,7 @@ void keyUpCallback(unsigned char key, int x, int y) {
     }
 
     if (valid_keypress) {
-      glutSwapBuffers();
+      drawAll();
     }
   }
 }
@@ -2150,8 +2172,25 @@ int main(int argc, char **argv) {
 
   glewInit();
 
-  unsigned int fbo;
-  glGenFramebuffers(1, &fbo);
+  glGenFramebuffers(1, &framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+  unsigned int textureColorbuffer;
+  glGenTextures(1, &textureColorbuffer);
+  glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  // attach it to currently bound framebuffer object
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                         textureColorbuffer, 0);
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    printf("bad\n");
+    exit(1);
+  }
 
   /* Start Event Processing Engine */
   glutMainLoop();
