@@ -7,9 +7,10 @@
 // Visit me at www.demonews.com/hosted/nehe
 // (email Richard Campbell at ulmont@bellsouth.net)
 //
+#include <GL/glew.h>
 #include <GL/freeglut_std.h>
-#include <GL/gl.h>   // Header File For The OpenGL32 Library
-#include <GL/glu.h>  // Header File For The GLu32 Library
+//#include <GL/gl.h>   // Header File For The OpenGL32 Library
+//#include <GL/glu.h>  // Header File For The GLu32 Library
 #include <GL/glut.h> // Header File For The GLUT Library
 #include <GL/glx.h>  // Header file fot the glx libraries.
 #include <unistd.h>  // needed to sleep
@@ -2146,6 +2147,11 @@ int main(int argc, char **argv) {
 
   /* Initialize our window. */
   InitGL(WIDTH, HEIGHT);
+
+  glewInit();
+
+  unsigned int fbo;
+  glGenFramebuffers(1, &fbo);
 
   /* Start Event Processing Engine */
   glutMainLoop();
