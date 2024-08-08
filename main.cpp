@@ -1979,41 +1979,6 @@ void IFSplot(void) {
           tcolor = ((crt << 16) + (cgt << 8) + cbt) & 0xFFFFFF;
           pict[nY][nX] = tcolor;
 
-          // ******************************
-          // Anti anlize from pixel-buffer:
-          // ******************************
-          // 2x2 grid:
-          nY = nY & 0xFFFE;
-          nX = nX & 0xFFFE;
-
-          // Reset colours:
-          ncols = 4;
-          tRed = 0x00;
-          tBlue = 0x00;
-          tGreen = 0x00;
-
-          // 2x2 pixels to 1 pixel:
-          for (int yi = 0; yi < 2; yi++) {
-            nYt = nY + yi;
-            if ((nYt >= 0) && (nYt < BHEIGHT)) {
-              for (int xi = 0; xi < 2; xi++) {
-                nXt = nX + xi;
-                if ((nXt >= 0) && (nXt < BWIDTH)) {
-                  tcolor = pict[nYt][nXt];
-                  tRed += (tcolor >> 16) & 0xFF;
-                  tGreen += (tcolor >> 8) & 0xFF;
-                  tBlue += tcolor & 0xFF;
-                } // Clip x.
-              } // for xi.
-            } // Clip y.
-          } // for yi.
-          tRed = (tRed / ncols) & 0xFF;
-          tGreen = (tGreen / ncols) & 0xFF;
-          tBlue = (tBlue / ncols) & 0xFF;
-          // End anti anilize.
-
-          // Convert 8-bit red, green & blue to 32-bit xRGB:
-          tcolor = ((tRed << 16) + (tGreen << 8) + tBlue) & 0x00FFFFFF;
 
           // ***********************
           // Write to screen buffer:
