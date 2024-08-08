@@ -1926,7 +1926,7 @@ void setColour(long c) {
 
 void IFSplot(void) {
   // Rotate to angle of view:
-  rotateview();
+  //rotateview();
 
   // Clip z:
   glBegin(GL_POINTS);
