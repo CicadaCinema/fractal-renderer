@@ -415,6 +415,7 @@ void rotateview(void) {
 }
 
 void IFSlight(void) {
+  return;
   // Rotate to light position:
   rotatelight();
 
