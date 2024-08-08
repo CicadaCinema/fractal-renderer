@@ -1802,7 +1802,7 @@ void newsetup(void) {
   //////////////////////////////
 
   // 2D Sierpinski squares as ground plate:
-  createbackground();
+  //createbackground();
 
   // Use 'half-note' steps for size modifier:
   t = (1.0f / 64.0f);
