@@ -1472,7 +1472,7 @@ void loadtrees(void) {
 
   // Load the preset trees and
   // branches from file-buffer:
-  loadtree();
+  //loadtree();
 }
 
 void loadtree(void) {
