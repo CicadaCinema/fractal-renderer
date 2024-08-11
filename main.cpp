@@ -621,6 +621,7 @@ void DoMyStuff(void) {
       cbt = bcb;
 
       // Plot pixel to scene:
+      printf("%f %f %f\n", xt, yt, zt);
       IFSplot();
 
     } // End of the iteration loop (the bottom-plane).
@@ -629,6 +630,8 @@ void DoMyStuff(void) {
   // ************************//
   // * Fractal ******* IFS ! //
   // ************************//
+
+  printf("AAA\n");
 
   // FIRST DO IFS FOR FOLIAGE:
 
@@ -682,6 +685,10 @@ void DoMyStuff(void) {
       cbt = dcb;
 
       // Plot pixel to scene:
+      printf("%f %f %f\n", xt, yt, zt);
+      if (pti == 5) {
+        int aaa = 123;
+      }
       IFSplot();
 
       // **** TRANSFORMATIONS **** //
@@ -689,6 +696,19 @@ void DoMyStuff(void) {
       // Rotations:
 
       i = di - 4;
+      printf("i=%d\n", i);
+      // reproducible randomness here
+      /*
+      if (pti == 8) {
+        i=3;
+      }
+      if (pti == 7) {
+        i=1;
+      }
+      if (pti == 6) {
+        i=0;
+      }
+       */
       // Do twist?:
       if (trees[treeinuse].usetwst) {
         t = branches[treeinuse][i].twistc * dtz -
@@ -753,6 +773,7 @@ void DoMyStuff(void) {
   zbuf[ui] = dtz;
 
   // THEN DO L-IFSYS FOR STUB AND STEM:
+  printf("BBB\n");
 
   if (logfoliage != 2) {
     switch (useLoCoS) {
@@ -886,6 +907,7 @@ void DoMyStuff(void) {
       cbt = dcb;
 
       // Plot pixel to scene:
+      printf("%f %f %f\n", xt, yt, zt);
       IFSplot();
 
       // **** TRANSFORMATIONS **** //
@@ -1062,6 +1084,7 @@ void DoMyStuff(void) {
 
     } // End of the iteration loop (the tree L-IFS).
   } // If logfoliage != 2.
+  //exit(0);
 }
 
 void drawAll() {
@@ -1142,334 +1165,35 @@ void loadtrees(void) {
       branches[j][i].twists = sinl(angle);
       angle = -angle;
     }
-    // Preset default trees:
-    strcpy(trees[j].name, "Default tree");
-    trees[j].branches = numbranch;
-    trees[j].usehig = false;
-    trees[j].glblscl = false;
-    trees[j].sctrnsl = false;
-    trees[j].usetwst = false;
-    trees[j].radius = 0.011f;
-    trees[j].height = -0.235f;
-    trees[j].stem = branches[i][0];
-    trees[j].branch_1 = branches[j][1];
-    trees[j].branch_2 = branches[j][2];
-    trees[j].branch_3 = branches[j][3];
-    trees[j].branch_4 = branches[j][4];
-    trees[j].branch_5 = branches[j][5];
-    trees[j].branch_6 = branches[j][6];
-    trees[j].branch_7 = branches[j][7];
   }
 
-  numbranch = 3;
-  i = 0;
-  strcpy(trees[i].name, "Sierpinski Tree");
-  trees[i].branches = numbranch;
-  trees[i].usehig = false;
-  trees[i].glblscl = true;
-  trees[i].sctrnsl = false;
-  trees[i].usetwst = false;
-  trees[i].radius = 0.005f;
-  trees[i].height = -0.35f;
-  trees[i].stem = branches[0][0];
-  trees[i].branch_1 = branches[i][1];
-  trees[i].branch_2 = branches[i][2];
-  trees[i].branch_3 = branches[i][3];
-  trees[i].branch_4 = branches[i][4];
-  trees[i].branch_5 = branches[i][5];
-  trees[i].branch_6 = branches[i][6];
-  trees[i].branch_7 = branches[i][7];
-
   t = (1.0f / 2.0f);
-  branches[i][0].height = 1.0f;
-  branches[i][0].scale = t;
+  branches[0][0].height = 1.0f;
+  branches[0][0].scale = t;
   angle = 0.0f * rad;
-  branches[i][0].leanc = cosl(angle);
-  branches[i][0].leans = sinl(angle);
-  branches[i][0].rotatec = cosl(angle);
-  branches[i][0].rotates = sinl(angle);
+  branches[0][0].leanc = cosl(angle);
+  branches[0][0].leans = sinl(angle);
+  branches[0][0].rotatec = cosl(angle);
+  branches[0][0].rotates = sinl(angle);
   angle = 90.0f * rad;
-  branches[i][0].twistc = cosl(angle);
-  branches[i][0].twists = sinl(angle);
+  branches[0][0].twistc = cosl(angle);
+  branches[0][0].twists = sinl(angle);
 
-  branches[i][1].height = 0.5f;
+  branches[0][1].height = 0.5f;
   angle = 120.0f * rad;
-  branches[i][1].leanc = cosl(angle);
-  branches[i][1].leans = sinl(angle);
+  branches[0][1].leanc = cosl(angle);
+  branches[0][1].leans = sinl(angle);
   angle = 0.0f * rad;
-  branches[i][1].rotatec = cosl(angle);
-  branches[i][1].rotates = sinl(angle);
+  branches[0][1].rotatec = cosl(angle);
+  branches[0][1].rotates = sinl(angle);
 
-  branches[i][2].height = 0.5f;
+  branches[0][2].height = 0.5f;
   angle = 120.0f * rad;
-  branches[i][2].leanc = cosl(angle);
-  branches[i][2].leans = sinl(angle);
+  branches[0][2].leanc = cosl(angle);
+  branches[0][2].leans = sinl(angle);
   angle = 180.0f * rad;
-  branches[i][2].rotatec = cosl(angle);
-  branches[i][2].rotates = sinl(angle);
-
-  numbranch = 4;
-  i = 1;
-  strcpy(trees[i].name, "Sierps tetra");
-  trees[i].branches = numbranch;
-  trees[i].usehig = false;
-  trees[i].glblscl = true;
-  trees[i].sctrnsl = false;
-  trees[i].usetwst = false;
-  trees[i].radius = 0.005f;
-  trees[i].height = -0.35f;
-  trees[i].stem = branches[0][0];
-  trees[i].branch_1 = branches[i][1];
-  trees[i].branch_2 = branches[i][2];
-  trees[i].branch_3 = branches[i][3];
-  trees[i].branch_4 = branches[i][4];
-  trees[i].branch_5 = branches[i][5];
-  trees[i].branch_6 = branches[i][6];
-  trees[i].branch_7 = branches[i][7];
-
-  t = (1.0f / 2.0f);
-  branches[i][0].height = 1.0f;
-  branches[i][0].scale = t;
-  angle = 0.0f * rad;
-  branches[i][0].leanc = cosl(angle);
-  branches[i][0].leans = sinl(angle);
-  branches[i][0].rotatec = cosl(angle);
-  branches[i][0].rotates = sinl(angle);
-  angle = 90.0f * rad;
-  branches[i][0].twistc = cosl(angle);
-  branches[i][0].twists = sinl(angle);
-
-  branches[i][1].height = 0.5f;
-  angle = 110.0f * rad;
-  branches[i][1].leanc = cosl(angle);
-  branches[i][1].leans = sinl(angle);
-  angle = 60.0f * rad;
-  branches[i][1].rotatec = cosl(angle);
-  branches[i][1].rotates = sinl(angle);
-
-  branches[i][2].height = 0.5f;
-  angle = 110.0f * rad;
-  branches[i][2].leanc = cosl(angle);
-  branches[i][2].leans = sinl(angle);
-  angle = 180.0f * rad;
-  branches[i][2].rotatec = cosl(angle);
-  branches[i][2].rotates = sinl(angle);
-
-  branches[i][3].height = 0.5f;
-  angle = 110.0f * rad;
-  branches[i][3].leanc = cosl(angle);
-  branches[i][3].leans = sinl(angle);
-  angle = 300.0f * rad;
-  branches[i][3].rotatec = cosl(angle);
-  branches[i][3].rotates = sinl(angle);
-
-  numbranch = 2;
-  i = 2;
-  strcpy(trees[i].name, "Lévy curve Tree");
-  trees[i].branches = numbranch;
-  trees[i].usehig = false;
-  trees[i].glblscl = true;
-  trees[i].sctrnsl = false;
-  trees[i].usetwst = false;
-  trees[i].radius = 0.015f;
-  trees[i].height = -0.23f;
-  trees[i].stem = branches[1][0];
-  trees[i].branch_1 = branches[i][1];
-  trees[i].branch_2 = branches[i][2];
-  trees[i].branch_3 = branches[i][3];
-  trees[i].branch_4 = branches[i][4];
-  trees[i].branch_5 = branches[i][5];
-  trees[i].branch_6 = branches[i][6];
-  trees[i].branch_7 = branches[i][7];
-
-  t = sqrtl(1.0f / 2.0f);
-  branches[i][0].height = 1.0f;
-  branches[i][0].scale = t;
-  angle = 45.0f * rad;
-  branches[i][0].leanc = cosl(angle);
-  branches[i][0].leans = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][0].rotatec = cosl(angle);
-  branches[i][0].rotates = sinl(angle);
-
-  angle = 45.0f * rad;
-  branches[i][1].leanc = cosl(angle);
-  branches[i][1].leans = sinl(angle);
-  angle = 180.0f * rad;
-  branches[i][1].rotatec = cosl(angle);
-  branches[i][1].rotates = sinl(angle);
-
-  numbranch = 2;
-  i = 3;
-  strcpy(trees[i].name, "Y-Tree!");
-  trees[i].branches = numbranch;
-  trees[i].usehig = false;
-  trees[i].glblscl = true;
-  trees[i].sctrnsl = false;
-  trees[i].usetwst = true;
-  trees[i].radius = 0.013f;
-  trees[i].height = -0.25f;
-  trees[i].stem = branches[2][0];
-  trees[i].branch_1 = branches[i][1];
-  trees[i].branch_2 = branches[i][2];
-  trees[i].branch_3 = branches[i][3];
-  trees[i].branch_4 = branches[i][4];
-  trees[i].branch_5 = branches[i][5];
-  trees[i].branch_6 = branches[i][6];
-  trees[i].branch_7 = branches[i][7];
-
-  t = sqrtl(1.0f / 2.0f);
-  branches[i][0].height = 1.0f;
-  branches[i][0].scale = t;
-  angle = 45.0f * rad;
-  branches[i][0].leanc = cosl(angle);
-  branches[i][0].leans = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][0].rotatec = cosl(angle);
-  branches[i][0].rotates = sinl(angle);
-  angle = 90.0f * rad;
-  branches[i][0].twistc = cosl(angle);
-  branches[i][0].twists = sinl(angle);
-
-  angle = -45.0f * rad;
-  branches[i][1].leanc = cosl(angle);
-  branches[i][1].leans = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][1].rotatec = cosl(angle);
-  branches[i][1].rotates = sinl(angle);
-  angle = -90.0f * rad;
-  branches[i][1].twistc = cosl(angle);
-  branches[i][1].twists = sinl(angle);
-
-  numbranch = 4;
-  i = 4;
-  strcpy(trees[i].name, "Paratrooper");
-  trees[i].branches = numbranch;
-  trees[i].usehig = false;
-  trees[i].glblscl = true;
-  trees[i].sctrnsl = false;
-  trees[i].usetwst = false;
-  trees[i].radius = 0.010f;
-  trees[i].height = -0.375f;
-  trees[i].stem = branches[2][0];
-  trees[i].branch_1 = branches[i][1];
-  trees[i].branch_2 = branches[i][2];
-  trees[i].branch_3 = branches[i][3];
-  trees[i].branch_4 = branches[i][4];
-  trees[i].branch_5 = branches[i][5];
-  trees[i].branch_6 = branches[i][6];
-  trees[i].branch_7 = branches[i][7];
-
-  t = (1.0f / 2.0f);
-  branches[i][0].height = 1.0f;
-  branches[i][0].scale = t;
-  angle = 45.0f * rad;
-  branches[i][0].leanc = cosl(angle);
-  branches[i][0].leans = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][0].rotatec = cosl(angle);
-  branches[i][0].rotates = sinl(angle);
-
-  angle = 45.0f * rad;
-  branches[i][1].leanc = cosl(angle);
-  branches[i][1].leans = sinl(angle);
-  angle = 90.0f * rad;
-  branches[i][1].rotatec = cosl(angle);
-  branches[i][1].rotates = sinl(angle);
-
-  angle = 45.0f * rad;
-  branches[i][2].leanc = cosl(angle);
-  branches[i][2].leans = sinl(angle);
-  angle = 180.0f * rad;
-  branches[i][2].rotatec = cosl(angle);
-  branches[i][2].rotates = sinl(angle);
-
-  angle = 45.0f * rad;
-  branches[i][3].leanc = cosl(angle);
-  branches[i][3].leans = sinl(angle);
-  angle = 270.0f * rad;
-  branches[i][3].rotatec = cosl(angle);
-  branches[i][3].rotates = sinl(angle);
-
-  numbranch = 5;
-  i = 5;
-  strcpy(trees[i].name, "Twister spruce");
-  trees[i].branches = numbranch;
-  trees[i].usehig = false;
-  trees[i].glblscl = false;
-  trees[i].sctrnsl = false;
-  trees[i].usetwst = true;
-  trees[i].radius = 0.005f;
-  trees[i].height = -0.26f;
-  trees[i].stem = branches[2][0];
-  trees[i].branch_1 = branches[i][1];
-  trees[i].branch_2 = branches[i][2];
-  trees[i].branch_3 = branches[i][3];
-  trees[i].branch_4 = branches[i][4];
-  trees[i].branch_5 = branches[i][5];
-  trees[i].branch_6 = branches[i][6];
-  trees[i].branch_7 = branches[i][7];
-
-  branches[i][0].height = 1.0f;
-  branches[i][0].scale = (phi - 1.0f);
-  angle = 0.0f * rad;
-  branches[i][0].leanc = cosl(angle);
-  branches[i][0].leans = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][0].rotatec = cosl(angle);
-  branches[i][0].rotates = sinl(angle);
-  angle = 22.5f * rad;
-  branches[i][0].twistc = cosl(angle);
-  branches[i][0].twists = sinl(angle);
-
-  t = (2.0f - phi);
-  branches[i][1].height = 0.5f;
-  branches[i][1].scale = t;
-  angle = 90.0f * rad;
-  branches[i][1].leanc = cosl(angle);
-  branches[i][1].leans = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][1].rotatec = cosl(angle);
-  branches[i][1].rotates = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][1].twistc = cosl(angle);
-  branches[i][1].twists = sinl(angle);
-
-  branches[i][2].height = 0.5f;
-  branches[i][2].scale = t;
-  angle = 90.0f * rad;
-  branches[i][2].leanc = cosl(angle);
-  branches[i][2].leans = sinl(angle);
-  angle = 90.0f * rad;
-  branches[i][2].rotatec = cosl(angle);
-  branches[i][2].rotates = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][2].twistc = cosl(angle);
-  branches[i][2].twists = sinl(angle);
-
-  branches[i][3].height = 0.5f;
-  branches[i][3].scale = t;
-  angle = 90.0f * rad;
-  branches[i][3].leanc = cosl(angle);
-  branches[i][3].leans = sinl(angle);
-  angle = 180.0f * rad;
-  branches[i][3].rotatec = cosl(angle);
-  branches[i][3].rotates = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][3].twistc = cosl(angle);
-  branches[i][3].twists = sinl(angle);
-
-  branches[i][4].height = 0.5f;
-  branches[i][4].scale = t;
-  angle = 90.0f * rad;
-  branches[i][4].leanc = cosl(angle);
-  branches[i][4].leans = sinl(angle);
-  angle = 270.0f * rad;
-  branches[i][4].rotatec = cosl(angle);
-  branches[i][4].rotates = sinl(angle);
-  angle = 0.0f * rad;
-  branches[i][4].twistc = cosl(angle);
-  branches[i][4].twists = sinl(angle);
+  branches[0][2].rotatec = cosl(angle);
+  branches[0][2].rotates = sinl(angle);
 
 #endif // USESETUPS
 
