@@ -1086,6 +1086,13 @@ void drawAll() {
 }
 
 void initiateIFS(void) {
+  // create constants
+  phi = (1.0f + sqrtl(5.0f)) / 2.0f;
+  pii = 2.0f * pi;
+  rad = pii / 360.0f;
+  RATIO = (double)WIDTH / (double)HEIGHT;
+  RERAT = (double)HEIGHT / (double)WIDTH;
+
   // Load preset trees:
   loadtrees();
 
