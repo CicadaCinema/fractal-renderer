@@ -1479,9 +1479,10 @@ void loadtrees(void) {
     exit(1);
   }
 
+  // FIXME: start loading trees from file
   // Load the preset trees and
   // branches from file-buffer:
-  loadtree();
+  // loadtree();
 }
 
 void loadtree(void) {
