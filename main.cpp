@@ -17,6 +17,9 @@
 #include <unistd.h>  // needed to sleep
 // clang-format on
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #define WIN32_LEAN_AND_MEAN
 // #include <ddraw.h>
 #include <math.h>
