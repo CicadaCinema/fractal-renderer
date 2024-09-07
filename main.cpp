@@ -3,6 +3,7 @@
 #include <GL/freeglut.h>
 // clang-format on
 
+#include <filesystem>
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,9 +21,8 @@ std::vector<Vertex> verts;
 GLuint vbo = 0;
 GLuint dlist = 0;
 
-void init() {
-  // init geometry
-  for (size_t i = 0; i < 10000000; i++) {
+void addSomePoints() {
+  for (size_t i = 0; i < 1000; i++) {
     Vertex vert;
     vert.pos = glm::vec4(glm::linearRand(glm::vec3(-1.0f, -1.0f, -1.0f),
                                          glm::vec3(1.0f, 1.0f, 1.0f)),
@@ -32,6 +32,11 @@ void init() {
                            1.0f);
     verts.push_back(vert);
   }
+}
+
+void init() {
+  // init geometry
+  addSomePoints();
 
   // create VBO
   glGenBuffers(1, &vbo);
@@ -66,6 +71,12 @@ void display() {
   angle += dt * 6.0f;
   glRotatef(angle, 0, 0, 1);
 
+  // send a bit more data to vbo
+  addSomePoints();
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), verts.data(),
+               GL_STATIC_DRAW);
+
   // render
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -82,8 +93,10 @@ void display() {
   msg << "Using vertex buffer object";
   msg << std::endl;
   msg << "Frame time: " << (dt * 1000.0f) << " ms";
+  msg << std::endl;
+  msg << "Number of points: " << verts.size();
   glColor3ub(255, 255, 0);
-  glWindowPos2i(10, 25);
+  glWindowPos2i(10, 45);
   glutBitmapString(GLUT_BITMAP_9_BY_15,
                    (unsigned const char *)(msg.str().c_str()));
 
