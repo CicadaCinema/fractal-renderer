@@ -2304,14 +2304,11 @@ void writecols(void) {
 }
 
 void clearscreen(long RGBdata) {
-  glBegin(GL_POINTS);
-  setColour(RGBdata);
-  for (int x = 0; x < WIDTH; x++) {
-    for (int y = 0; y < HEIGHT; y++) {
-      glVertex2i(x, y);
-    }
-  }
-  glEnd();
+  unsigned int r = (RGBdata & 0x00FF0000) >> 16;
+  unsigned int g = (RGBdata & 0x0000FF00) >> 8;
+  unsigned int b = RGBdata & 0x000000FF;
+  glClearColor((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void showpic(void) {
