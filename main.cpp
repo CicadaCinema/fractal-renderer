@@ -2334,26 +2334,24 @@ void showpic(void) {
 }
 
 void CreatePalette(void) {
-  bool invert, vertin, lightobject, heatvawe, sinvawe, bakwrds;
-  int i;
   long tc;
   float fdout, fdin, fdout2, fdin2, fdouts, fdins, ufade0;
-  float rf, gf, bf, freq, rl, gl, bl;
+  float rl, gl, bl;
 
-  freq = 1.0f + RND * RND * RND * 256.0f;
-  rf = freq * (1.0f + RND * pi);
-  gf = freq * (1.0f + RND * pi);
-  bf = freq * (1.0f + RND * pi);
+  float freq = 1.0f + RND * RND * RND * 256.0f;
+  float rf = freq * (1.0f + RND * pi);
+  float gf = freq * (1.0f + RND * pi);
+  float bf = freq * (1.0f + RND * pi);
 
   // Randomize palette-modes:
-  invert = (RND > 0.5f);
-  lightobject = (RND > 0.75f);
-  vertin = (RND > 0.75f);
-  heatvawe = (RND > 0.95f);
-  sinvawe = (RND > 0.75f);
-  bakwrds = (RND > 0.5f);
+  bool invert = (RND > 0.5f);
+  bool lightobject = (RND > 0.75f);
+  bool vertin = (RND > 0.75f);
+  bool heatvawe = (RND > 0.95f);
+  bool sinvawe = (RND > 0.75f);
+  bool bakwrds = (RND > 0.5f);
 
-  for (i = 0; i != PALSIZE; i++) {
+  for (int i = 0; i != PALSIZE; i++) {
     fdout = float(PALSIZE - i) / PALSIZE;
     if (bakwrds)
       fdout = float(i) / PALSIZE;
