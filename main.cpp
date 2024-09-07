@@ -2431,10 +2431,6 @@ void CreatePalette(void) {
 }
 
 void ShowPalette(int mode) {
-  int pr;
-  int pp;
-  int pz;
-
   // Draw border:
   FILLBOX(WIDTH - 306, 294, WIDTH - 46, 554, 0x00A0A0A0);
 
@@ -2443,8 +2439,8 @@ void ShowPalette(int mode) {
   glBegin(GL_POINTS);
   switch (mode) {
   case SERP:
-    for (pr = (256 - 1); pr >= 0; pr--) {
-      for (pp = 0; pp < 256; pp++) {
+    for (int pr = (256 - 1); pr >= 0; pr--) {
+      for (int pp = 0; pp < 256; pp++) {
         setColour(
             lpCols[(int(pp * (PALSIZE / 256)) | int(pr * (PALSIZE / 256)))]);
         glVertex2i(tmp + pp, HEIGHT - 304 + pr);
@@ -2453,8 +2449,9 @@ void ShowPalette(int mode) {
     break;
 
   case ABSZ:
-    for (pr = (256 - 1); pr >= 0; pr--) {
-      for (pp = 0; pp < 256; pp++) {
+    int pz;
+    for (int pr = (256 - 1); pr >= 0; pr--) {
+      for (int pp = 0; pp < 256; pp++) {
         pz = 1 + int((sqrt((pr - 128) * (pr - 128) + (pp - 128) * (pp - 128)) /
                       725) *
                      PALSIZE);
