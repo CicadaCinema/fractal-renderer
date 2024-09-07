@@ -1092,45 +1092,6 @@ void DoMyStuff(void) {
 void drawAll() {
   // printf("drawing\n");
 
-  int vertices[] = {0, 0, 0, WIDTH, 0, 0, 0, HEIGHT, 0};
-  int colour[] = {0xff0000, 0x00ff00, 0x0000ff};
-
-  // Generate a VAO and a VBO
-  unsigned int VAO, VBO, VBOcolour;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glGenBuffers(1, &VBOcolour);
-
-  // Bind the VAO
-  glBindVertexArray(VAO);
-
-  // Copy vertex data into the buffer's memory
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  // Specify how the vertex data should be interpreted
-  glVertexAttribPointer(0, 3, GL_INT, GL_FALSE, 3 * sizeof(int), (void *)0);
-  glEnableVertexAttribArray(0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBOcolour);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(colour), colour, GL_STATIC_DRAW);
-
-  glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(int), (void *)0);
-  glEnableVertexAttribArray(1);
-
-  // in render loop:
-  basicShader->use();
-  basicShader->setMat4("projection", projectionMatrix);
-
-  // render the triangle
-  glBindVertexArray(VAO);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
-
-  // unbind everything
-  glBindVertexArray(0);
-  glUseProgram(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
   // Read from my framebuffer, and write to the default framebuffer.
   glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -2531,8 +2492,6 @@ void ShowPalette(int mode) {
 }
 
 void drawBoxi(void) {
-  int boxw, boxh;
-
   // clip:
   if (lixs < 0)
     lixs = 0;
@@ -2567,18 +2526,49 @@ void drawBoxi(void) {
     liye = tmp;
   }
 
-  // Calculate with & height of box:
-  boxw = lixe - lixs;
-  boxh = liye - liys;
+  int vertices[] = {
+      lixs, liys, 0, lixe, liys, 0, lixs, liye, 0,
+      lixe, liys, 0, lixs, liye, 0, lixe, liye, 0,
+  };
+  int colour[] = {(int)lcol, (int)lcol, (int)lcol,
+                  (int)lcol, (int)lcol, (int)lcol};
 
-  glBegin(GL_POINTS);
-  setColour(lcol);
-  do {
-    for (int index = 0; index < boxw; index++)
-      glVertex2i(index + lixs, liys);
-    liys++;
-  } while (--boxh > 0);
-  glEnd();
+  // Generate a VAO and a VBO
+  unsigned int VAO, VBO, VBOcolour;
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &VBOcolour);
+
+  // Bind the VAO
+  glBindVertexArray(VAO);
+
+  // Copy vertex data into the buffer's memory
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  // Specify how the vertex data should be interpreted
+  glVertexAttribPointer(0, 3, GL_INT, GL_FALSE, 3 * sizeof(int), (void *)0);
+  glEnableVertexAttribArray(0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBOcolour);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(colour), colour, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(int),
+                        (void *)0);
+  glEnableVertexAttribArray(1);
+
+  // in render loop:
+  basicShader->use();
+  basicShader->setMat4("projection", projectionMatrix);
+
+  // render the triangle
+  glBindVertexArray(VAO);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+
+  // unbind everything
+  glBindVertexArray(0);
+  glUseProgram(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void newrender(void) {
