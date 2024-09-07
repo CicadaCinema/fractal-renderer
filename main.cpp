@@ -1076,11 +1076,13 @@ void drawAll() {
   // printf("drawing\n");
 
   int vertices[] = {0, 0, 0, WIDTH, 0, 0, 0, HEIGHT, 0};
+  int colour[] = {0xff0000, 0x00ff00, 0x0000ff};
 
   // Generate a VAO and a VBO
-  unsigned int VAO, VBO;
+  unsigned int VAO, VBO, VBOcolour;
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
+  glGenBuffers(1, &VBOcolour);
 
   // Bind the VAO
   glBindVertexArray(VAO);
@@ -1093,10 +1095,15 @@ void drawAll() {
   glVertexAttribPointer(0, 3, GL_INT, GL_FALSE, 3 * sizeof(int), (void *)0);
   glEnableVertexAttribArray(0);
 
+  glBindBuffer(GL_ARRAY_BUFFER, VBOcolour);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(colour), colour, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(int), (void *)0);
+  glEnableVertexAttribArray(1);
+
   // in render loop:
   basicShader->use();
   basicShader->setMat4("projection", projectionMatrix);
-  basicShader->setVec3("vertexColor", 0.8, 1.0, 0.0);
 
   // render the triangle
   glBindVertexArray(VAO);
