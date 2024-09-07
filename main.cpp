@@ -362,7 +362,6 @@ void CreatePalette(void);
 void DoMyStuff(void);
 void drawBox(void);
 void drawBoxi(void);
-static void finiObjects(void);
 double getlevel(double xmin, double xmax, double ystart, double yend, double x,
                 double Q);
 void IFSlight(void);
@@ -2336,10 +2335,9 @@ void showpic(void) {
 
 void CreatePalette(void) {
   bool invert, vertin, lightobject, heatvawe, sinvawe, bakwrds;
-  int fade, i;
+  int i;
   long tc;
-  float fdout, fdin, fdout2, fdin2, fdouts, fdins, ufade0, ufade1, ufade2,
-      ufade3, ampl;
+  float fdout, fdin, fdout2, fdin2, fdouts, fdins, ufade0;
   float rf, gf, bf, freq, rl, gl, bl;
 
   freq = 1.0f + RND * RND * RND * 256.0f;
@@ -2355,7 +2353,6 @@ void CreatePalette(void) {
   sinvawe = (RND > 0.75f);
   bakwrds = (RND > 0.5f);
 
-  fade = int(RND * 2);
   for (i = 0; i != PALSIZE; i++) {
     fdout = float(PALSIZE - i) / PALSIZE;
     if (bakwrds)
@@ -2369,8 +2366,6 @@ void CreatePalette(void) {
     fdins = 1.0f - fdout2;
 
     ufade0 = fdout;
-    ufade1 = fdins;
-    ufade2 = fdout2;
     //    ufade3 = fdouts;
 
     //		if ( vertin )
