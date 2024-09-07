@@ -14,6 +14,7 @@
 //#include <GL/glu.h>  // Header File For The GLu32 Library
 #include <GL/glut.h> // Header File For The GLUT Library
 #include <GL/glx.h>  // Header file fot the glx libraries.
+#include <glm/ext/matrix_clip_space.hpp>
 #include <unistd.h>  // needed to sleep
 // clang-format on
 
@@ -34,6 +35,8 @@
 
 #include "Makrons.h"
 #include "Treestruct.h"
+
+#include "shader.h"
 
 /* ASCII code for the escape key. */
 #define ESCAPE 27
@@ -347,6 +350,8 @@ FILE *infile;
 struct ATREE tree[NUMTREES];
 
 bool paintOnNextFrame;
+Shader *basicShader;
+glm::mat4 projectionMatrix;
 
 /* --------------------------------------------------------------------- *
                         DECLARE FUNCTIONS
@@ -1069,6 +1074,38 @@ void DoMyStuff(void) {
 
 void drawAll() {
   // printf("drawing\n");
+
+  int vertices[] = {0, 0, 0, WIDTH, 0, 0, 0, HEIGHT, 0};
+
+  // Generate a VAO and a VBO
+  unsigned int VAO, VBO;
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+
+  // Bind the VAO
+  glBindVertexArray(VAO);
+
+  // Copy vertex data into the buffer's memory
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  // Specify how the vertex data should be interpreted
+  glVertexAttribPointer(0, 3, GL_INT, GL_FALSE, 3 * sizeof(int), (void *)0);
+  glEnableVertexAttribArray(0);
+
+  // in render loop:
+  basicShader->use();
+  basicShader->setMat4("projection", projectionMatrix);
+  basicShader->setVec3("vertexColor", 0.8, 1.0, 0.0);
+
+  // render the triangle
+  glBindVertexArray(VAO);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
+
+  // unbind everything
+  glBindVertexArray(0);
+  glUseProgram(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   // Read from my framebuffer, and write to the default framebuffer.
   glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
@@ -3354,6 +3391,11 @@ int main(int argc, char **argv) {
     printf("bad\n");
     exit(1);
   }
+
+  Shader basicShaderProgram("basic.vs", "basic.fs");
+  basicShader = &basicShaderProgram;
+  projectionMatrix =
+      glm::ortho(0.0f, (float)WIDTH, (float)HEIGHT, 0.0f, -1.0f, 1.0f);
 
   /* Start Event Processing Engine */
   glutMainLoop();
