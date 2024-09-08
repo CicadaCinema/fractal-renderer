@@ -3408,6 +3408,10 @@ int main(int argc, char **argv) {
   projectionMatrix =
       glm::ortho(0.0f, (float)WIDTH, (float)HEIGHT, 0.0f, -1.0f, 1.0f);
 
+  // FIXME: stop pretending that space is pressed on launch
+  programMode = 0;
+  paintOnNextFrame = true;
+
   /* Start Event Processing Engine */
   glutMainLoop();
 
