@@ -3355,9 +3355,6 @@ int main(int argc, char **argv) {
   /* get a window */
   glutInitWindowSize(WIDTH, HEIGHT);
 
-  /* the window starts at the upper left corner of the screen */
-  glutInitWindowPosition(0, 0);
-
   /* Open a window */
   window = glutCreateWindow("my window");
 
