@@ -2668,22 +2668,6 @@ void InitGL(
   BuildFont();
 }
 
-/* The function called when our window is resized (which shouldn't happen,
- * because we're fullscreen) */
-void ReSizeGLScene(int Width, int Height) {
-  if (Height == 0) // Prevent A Divide By Zero If The Window Is Too Small
-    Height = 1;
-
-  glViewport(0, 0, Width, Height);
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  gluOrtho2D(0, Width, Height, 0);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-}
-
 /* The main drawing function. */
 void DrawGLScene() {
   glLoadIdentity(); // Reset The View
@@ -3363,9 +3347,6 @@ int main(int argc, char **argv) {
 
   /* Even if there are no events, redraw our gl scene. */
   glutIdleFunc(&DrawGLScene);
-
-  /* Register the function called when our window is resized. */
-  glutReshapeFunc(&ReSizeGLScene);
 
   /* Register the functions called when the keyboard is pressed. */
   glutKeyboardUpFunc(&keyUpCallback);
