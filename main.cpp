@@ -15,7 +15,7 @@
 
 struct Vertex {
   int pos[2];
-  glm::vec3 color;
+  int color;
 };
 std::vector<Vertex> verts;
 GLuint vbo = 0;
@@ -26,8 +26,7 @@ void addSomePoints() {
     Vertex vert;
     vert.pos[0] = 100 + (rand() % 400);
     vert.pos[1] = 100 + (rand() % 400);
-    vert.color = glm::linearRand(glm::vec3(0.00f, 0.0f, 0.0f),
-                                 glm::vec3(1.0f, 1.0f, 1.0f));
+    vert.color = rand() % 0xFFFFFF;
     verts.push_back(vert);
   }
 }
@@ -76,7 +75,7 @@ void display() {
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
   glVertexPointer(2, GL_INT, sizeof(Vertex), (void *)offsetof(Vertex, pos));
-  glColorPointer(3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
+  glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(Vertex), (void *)offsetof(Vertex, color));
   glDrawArrays(GL_POINTS, 0, verts.size());
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
