@@ -24,8 +24,8 @@ GLuint dlist = 0;
 void addSomePoints() {
   for (size_t i = 0; i < 1000; i++) {
     Vertex vert;
-    vert.pos = glm::vec4(glm::linearRand(glm::vec3(-1.0f, -1.0f, -1.0f),
-                                         glm::vec3(1.0f, 1.0f, 1.0f)),
+    vert.pos = glm::vec4(glm::linearRand(glm::vec3(100.0f, 100.0f, 0.0f),
+                                         glm::vec3(500.0f, 500.0f, 0.0f)),
                          1.0f);
     vert.color = glm::vec4(glm::linearRand(glm::vec3(0.00f, 0.0f, 0.0f),
                                            glm::vec3(1.0f, 1.0f, 1.0f)),
@@ -58,18 +58,14 @@ void display() {
   glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  // Define projection matrix.
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  double w = glutGet(GLUT_WINDOW_WIDTH);
-  double h = glutGet(GLUT_WINDOW_HEIGHT);
-  gluPerspective(60.0, w / h, 0.1, 10.0);
+  gluOrtho2D(0, 600, 600, 0);
+
+  // Define model matrix.
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  gluLookAt(2, 2, 2, 0, 0, 0, 0, 0, 1);
-
-  static float angle = 0.0f;
-  angle += dt * 6.0f;
-  glRotatef(angle, 0, 0, 1);
 
   // send a bit more data to vbo
   addSomePoints();
