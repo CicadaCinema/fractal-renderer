@@ -404,21 +404,6 @@ GLuint base;  // base display list for the font set.
 GLfloat cnt1; // 1st counter used to move text & for coloring.
 GLfloat cnt2; // 2nd counter used to move text & for coloring.
 
-float startTime;
-
-// This function is called whenever `itersdone` is incremented.
-// We use it for tracking our performance.
-void benchmark() {
-  if (itersdone == 0) {
-    startTime = (float)clock() / CLOCKS_PER_SEC;
-  }
-
-  if (itersdone == 30000) {
-    float timeElapsed = (float)clock() / CLOCKS_PER_SEC - startTime;
-    printf("it took %f to do 30000 iterations\n", timeElapsed * 100);
-  }
-}
-
 void rotatelight(void) {
   t = lryx * zt - lryy * xt;
   xt = lryx * xt + lryy * zt;
@@ -678,7 +663,6 @@ void DoMyStuff(void) {
 
     // IFS-snurran!
     for (pti = 8; pti >= 0; pti--) {
-      benchmark();
       itersdone++;
       di = 4 + int(RND * trees[treeinuse].branches);
 
@@ -883,7 +867,6 @@ void DoMyStuff(void) {
 
     // IFS-snurran!
     for (pti = (ilevels - 1); pti >= 0; pti--) {
-      benchmark();
       itersdone++;
       di = 4 + int(RND * trees[treeinuse].branches);
 
