@@ -14,8 +14,8 @@
 #include <vector>
 
 struct Vertex {
-  glm::vec4 pos;
-  glm::vec4 color;
+  glm::vec2 pos;
+  glm::vec3 color;
 };
 std::vector<Vertex> verts;
 GLuint vbo = 0;
@@ -24,12 +24,10 @@ GLuint dlist = 0;
 void addSomePoints() {
   for (size_t i = 0; i < 1000; i++) {
     Vertex vert;
-    vert.pos = glm::vec4(glm::linearRand(glm::vec3(100.0f, 100.0f, 0.0f),
-                                         glm::vec3(500.0f, 500.0f, 0.0f)),
-                         1.0f);
-    vert.color = glm::vec4(glm::linearRand(glm::vec3(0.00f, 0.0f, 0.0f),
-                                           glm::vec3(1.0f, 1.0f, 1.0f)),
-                           1.0f);
+    vert.pos =
+        glm::linearRand(glm::vec2(100.0f, 100.0f), glm::vec2(500.0f, 500.0f));
+    vert.color = glm::linearRand(glm::vec3(0.00f, 0.0f, 0.0f),
+                                 glm::vec3(1.0f, 1.0f, 1.0f));
     verts.push_back(vert);
   }
 }
@@ -77,8 +75,8 @@ void display() {
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
-  glVertexPointer(4, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, pos));
-  glColorPointer(4, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
+  glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, pos));
+  glColorPointer(3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
   glDrawArrays(GL_POINTS, 0, verts.size());
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
