@@ -31,7 +31,7 @@ void addSomePoints() {
   }
 }
 
-void init() {
+void topLevelInit() {
   // init geometry
   addSomePoints();
 
@@ -42,9 +42,9 @@ void init() {
                GL_STATIC_DRAW);
 }
 
-void keyboard(unsigned char key, int x, int y) {}
+void topLevelKeyboard(unsigned char key, int x, int y) {}
 
-void display() {
+void topLevelDisplay() {
   // timekeeping
   static std::chrono::steady_clock::time_point prv =
       std::chrono::steady_clock::now();
@@ -102,10 +102,10 @@ int main(int argc, char **argv) {
   glutInitWindowSize(600, 600);
   glutCreateWindow("my window");
   glewInit();
-  init();
-  glutDisplayFunc(display);
-  glutKeyboardFunc(keyboard);
-  glutIdleFunc(display);
+  topLevelInit();
+  glutDisplayFunc(topLevelDisplay);
+  glutKeyboardFunc(topLevelKeyboard);
+  glutIdleFunc(topLevelDisplay);
   glutMainLoop();
   return 0;
 }
