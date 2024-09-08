@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
   glutInitWindowSize(600, 600);
-  glutCreateWindow("GLUT");
+  glutCreateWindow("my window");
   glewInit();
   init();
   glutDisplayFunc(display);
