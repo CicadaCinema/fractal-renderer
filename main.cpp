@@ -2512,7 +2512,6 @@ void topLevelDisplay() {
   // NOTE THAT WE ARE LOOPING OVER THIS FUNCTION MANY TIMES!!
   // FIXME: only initiate iteration parameters when we actually start a new
   // render!
-  newrender();
   for (int i___ = 0; i___ < 2000; i___++) {
     DoMyStuff();
   }
