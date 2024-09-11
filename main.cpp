@@ -2488,13 +2488,6 @@ void topLevelInit() {
 
 void topLevelKeyboard(unsigned char key, int x, int y) {}
 
-void renderFractal() {
-  // Initiate iteration parameters:
-  newrender();
-
-  DoMyStuff();
-}
-
 void topLevelDisplay() {
   // timekeeping
   static std::chrono::steady_clock::time_point prv =
@@ -2517,8 +2510,11 @@ void topLevelDisplay() {
 
   // send a bit more data to vbo
   // NOTE THAT WE ARE LOOPING OVER THIS FUNCTION MANY TIMES!!
+  // FIXME: only initiate iteration parameters when we actually start a new
+  // render!
+  newrender();
   for (int i___ = 0; i___ < 2000; i___++) {
-    renderFractal();
+    DoMyStuff();
   }
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
