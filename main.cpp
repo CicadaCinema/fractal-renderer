@@ -2496,7 +2496,7 @@ void topLevelDisplay() {
   const float dt = std::chrono::duration<float>(cur - prv).count();
   prv = cur;
 
-  glClearColor(0, 0, 0, 1);
+  clearscreen(bgcol[showbackground]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // Define projection matrix.
