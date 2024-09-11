@@ -11,6 +11,7 @@
 #include <chrono>
 #include <cstddef>
 #include <sstream>
+#include <unistd.h>
 #include <vector>
 
 #include "Makrons.h"
@@ -2486,7 +2487,25 @@ void topLevelInit() {
   initiateIFS();
 }
 
-void topLevelKeyboard(unsigned char key, int x, int y) {}
+void topLevelKeyboard(unsigned char key, int x, int y) {
+  // avoid thrashing this call
+  // TODO: is this necessary?
+  usleep(100);
+
+  switch (key) {
+  case 'm':
+    if (++treeinuse >= NUMTREES) {
+      treeinuse = 0;
+    }
+    newsetup();
+    clearallbufs(bgcol[showbackground]);
+    clearscreen(bgcol[showbackground]);
+    verts.clear();
+    break;
+  default:
+    break;
+  }
+}
 
 void topLevelDisplay() {
   // timekeeping
