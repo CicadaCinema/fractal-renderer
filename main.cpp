@@ -2507,6 +2507,74 @@ void topLevelKeyboard(unsigned char key, int x, int y) {
   }
 }
 
+void topLevelKeyboardSpecial(int key, int x, int y) {
+  // avoid thrashing this call
+  // TODO: is this necessary?
+  usleep(100);
+
+  switch (key) {
+  case GLUT_KEY_PAGE_UP:
+    imszoom *= twup;
+    break;
+  case GLUT_KEY_PAGE_DOWN:
+    imszoom *= twdwn;
+    break;
+
+  case GLUT_KEY_UP:
+    rxv += 0.01f;
+    if (int(rxv) > 180)
+      rxv = 180.0f;
+    CamAng();
+    break;
+  case GLUT_KEY_RIGHT:
+    ryv += 0.01f;
+    if (int(ryv) > 180)
+      ryv = 180.0f;
+    CamAng();
+    break;
+  case GLUT_KEY_DOWN:
+    rxv -= 0.01f;
+    if (int(rxv) < -180)
+      rxv = -180.0f;
+    CamAng();
+    break;
+  case GLUT_KEY_LEFT:
+    ryv -= 0.01f;
+    if (int(ryv) < -180)
+      ryv = -180.0f;
+    CamAng();
+    break;
+
+  default:
+    break;
+  }
+}
+
+void topLevelKeyboardSpecialUp(int key, int x, int y) {
+  // avoid thrashing this call
+  // TODO: is this necessary?
+  usleep(100);
+
+  switch (key) {
+  case GLUT_KEY_PAGE_UP:
+  case GLUT_KEY_PAGE_DOWN:
+    clearallbufs(bgcol[showbackground]);
+    clearscreen(bgcol[showbackground]);
+    verts.clear();
+    break;
+  case GLUT_KEY_LEFT:
+  case GLUT_KEY_RIGHT:
+  case GLUT_KEY_DOWN:
+  case GLUT_KEY_UP:
+    clearscreenbufs(bgcol[showbackground]);
+    clearscreen(bgcol[showbackground]);
+    verts.clear();
+    break;
+  default:
+    break;
+  }
+}
+
 void topLevelDisplay() {
   // timekeeping
   static std::chrono::steady_clock::time_point prv =
@@ -2575,6 +2643,8 @@ int main(int argc, char **argv) {
   topLevelInit();
   glutDisplayFunc(topLevelDisplay);
   glutKeyboardFunc(topLevelKeyboard);
+  glutSpecialFunc(topLevelKeyboardSpecial);
+  glutSpecialUpFunc(topLevelKeyboardSpecialUp);
   glutIdleFunc(topLevelDisplay);
 
   // pretend we have just hit space

@@ -244,14 +244,6 @@ void keyDownCallbackSpecial(int key, int x, int y) {
     break; // Escape.
        */
 
-    case GLUT_KEY_PAGE_UP:
-      imszoom *= twup;
-      break; // page up.
-
-    case GLUT_KEY_PAGE_DOWN:
-      imszoom *= twdwn;
-      break; // page down.
-
     case GLUT_KEY_HOME:
       ryv = 0.0f * rad;
       rxv = 0.0f * rad;
@@ -262,34 +254,6 @@ void keyDownCallbackSpecial(int key, int x, int y) {
       clearscreen(bgcol[showbackground]);
       SunCode();
       break; // page down.
-
-    case GLUT_KEY_UP:
-      rxv += 0.01f;
-      if (int(rxv) > 180)
-        rxv = 180.0f;
-      CamAng();
-      break; // Up key.
-
-    case GLUT_KEY_RIGHT:
-      ryv += 0.01f;
-      if (int(ryv) > 180)
-        ryv = 180.0f;
-      CamAng();
-      break; // Right key.
-
-    case GLUT_KEY_DOWN:
-      rxv -= 0.01f;
-      if (int(rxv) < -180)
-        rxv = -180.0f;
-      CamAng();
-      break; // Down key.
-
-    case GLUT_KEY_LEFT:
-      ryv -= 0.01f;
-      if (int(ryv) < -180)
-        ryv = -180.0f;
-      CamAng();
-      break; // Left key.
 
     case GLUT_KEY_F1:
       trees[treeinuse].usehig = (trees[treeinuse].usehig + 1) & 0x01;
@@ -384,40 +348,6 @@ void keyDownCallbackSpecial(int key, int x, int y) {
 
   if (valid_keypress) {
     drawAll();
-  }
-}
-
-void keyUpCallbackSpecial(int key, int x, int y) {
-  /* avoid thrashing this call */
-  usleep(100);
-
-  // Functions only active if render screen:
-  if (renderactive) {
-    bool valid_keypress = true;
-
-    switch (key) {
-    case GLUT_KEY_PAGE_UP:
-    case GLUT_KEY_PAGE_DOWN:
-      clearallbufs(bgcol[showbackground]);
-      clearscreen(bgcol[showbackground]);
-      SunCode();
-      break; // Clear all keys.
-    case GLUT_KEY_LEFT:
-    case GLUT_KEY_RIGHT:
-    case GLUT_KEY_DOWN:
-    case GLUT_KEY_UP:
-      clearscreenbufs(bgcol[showbackground]);
-      clearscreen(bgcol[showbackground]);
-      SunCode();
-      break; // Clear screen keys.
-    default:
-      valid_keypress = false;
-      break;
-    }
-
-    if (valid_keypress) {
-      drawAll();
-    }
   }
 }
 
