@@ -3,7 +3,6 @@
 #include <GL/freeglut.h>
 // clang-format on
 
-#include <filesystem>
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
 #include <glm/gtc/type_ptr.hpp>
