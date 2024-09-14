@@ -2492,6 +2492,11 @@ void topLevelKeyboard(unsigned char key, int x, int y) {
   usleep(100);
 
   switch (key) {
+  case 'b':
+    showbackground++;
+    if (showbackground > 4)
+      showbackground = 0;
+    break;
   case 'm':
     if (++treeinuse >= NUMTREES) {
       treeinuse = 0;

@@ -409,18 +409,6 @@ void keyDownCallback(unsigned char key, int x, int y) {
       SunCode();
       break; // A.
 
-    case 'B':
-      showbackground++;
-      if (showbackground > 4)
-        showbackground = 0;
-      newrender();
-      clearscreenbufs(bgcol[showbackground]);
-      clearscreen(bgcol[showbackground]);
-      SunCode();
-      writecols();
-      clearViewmess();
-      break; // B.
-
     case 'C':
       clearscreenbufs(bgcol[showbackground]);
       trees[treeinuse].radius *= sqrtl(twup);
@@ -625,16 +613,6 @@ void keyDownCallback(unsigned char key, int x, int y) {
       programMode = 0;
       paintOnNextFrame = true;
       break; // Space.
-
-    case 'B':
-      showbackground++;
-      if (showbackground > 4)
-        showbackground = 0;
-      newrender();
-      newset = true;
-      printsceneinfo();
-      viewcols();
-      break; // B.
 
     case 'E':
       if (++logfoliage >= 3)
